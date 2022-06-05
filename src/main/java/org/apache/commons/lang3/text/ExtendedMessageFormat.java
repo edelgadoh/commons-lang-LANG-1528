@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -38,8 +39,8 @@ import org.apache.commons.lang3.Validate;
  * and the formats supported by {@code java.text.MessageFormat} can be overridden
  * at the format and/or format style level (see MessageFormat).  A "format element"
  * embedded in the message pattern is specified (<b>()?</b> signifies optionality):<br>
- * {@code {}<i>argument-number</i><b>(</b>{@code ,}<i>format-name</i><b>
- * (</b>{@code ,}<i>format-style</i><b>)?)?</b>{@code }}
+ * <code>{</code><i>argument-number</i><b>(</b>{@code ,}<i>format-name</i><b>
+ * (</b>{@code ,}<i>format-style</i><b>)?)?</b><code>}</code>
  *
  * <p>
  * <i>format-name</i> and <i>format-style</i> values are trimmed of surrounding whitespace
@@ -65,7 +66,7 @@ import org.apache.commons.lang3.Validate;
  * </ul>
  *
  * @since 2.4
- * @deprecated as of 3.6, use commons-text
+ * @deprecated As of 3.6, use Apache Commons Text
  * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/ExtendedMessageFormat.html">
  * ExtendedMessageFormat</a> instead
  */
@@ -80,7 +81,14 @@ public class ExtendedMessageFormat extends MessageFormat {
     private static final char START_FE = '{';
     private static final char QUOTE = '\'';
 
+    /**
+     * To pattern string.
+     */
     private String toPattern;
+
+    /**
+     * Our registry of FormatFactory.
+     */
     private final Map<String, ? extends FormatFactory> registry;
 
     /**
@@ -118,14 +126,14 @@ public class ExtendedMessageFormat extends MessageFormat {
     /**
      * Create a new ExtendedMessageFormat.
      *
-     * @param pattern  the pattern to use, not null
-     * @param locale  the locale to use, not null
-     * @param registry  the registry of format factories, may be null
+     * @param pattern  the pattern to use, not null.
+     * @param locale  the locale to use.
+     * @param registry  the registry of format factories, may be null.
      * @throws IllegalArgumentException in case of a bad pattern.
      */
     public ExtendedMessageFormat(final String pattern, final Locale locale, final Map<String, ? extends FormatFactory> registry) {
         super(DUMMY_PATTERN);
-        setLocale(locale);
+        setLocale(LocaleUtils.toLocale(locale));
         this.registry = registry;
         applyPattern(pattern);
     }
@@ -444,7 +452,7 @@ public class ExtendedMessageFormat extends MessageFormat {
      * @param pos current position
      */
     private void seekNonWs(final String pattern, final ParsePosition pos) {
-        int len = 0;
+        int len;
         final char[] buffer = pattern.toCharArray();
         do {
             len = StrMatcher.splitMatcher().isMatch(buffer, pos.getIndex());
@@ -485,12 +493,11 @@ public class ExtendedMessageFormat extends MessageFormat {
 
         final int start = pos.getIndex();
         final char[] c = pattern.toCharArray();
-        final int lastHold = start;
         for (int i = pos.getIndex(); i < pattern.length(); i++) {
             if (c[pos.getIndex()] == QUOTE) {
                 next(pos);
-                return appendTo == null ? null : appendTo.append(c, lastHold,
-                        pos.getIndex() - lastHold);
+                return appendTo == null ? null : appendTo.append(c, start,
+                        pos.getIndex() - start);
             }
             next(pos);
         }

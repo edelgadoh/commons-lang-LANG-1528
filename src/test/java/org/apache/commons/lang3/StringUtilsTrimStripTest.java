@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -67,7 +68,6 @@ public class StringUtilsTrimStripTest  {
         assertEquals("", StringUtils.trimToEmpty(null));
     }
 
-    //-----------------------------------------------------------------------
     @Test
     public void testStrip_String() {
         assertNull(StringUtils.strip(null));
@@ -199,10 +199,10 @@ public class StringUtilsTrimStripTest  {
     @Test
     public void testStripAll() {
         // test stripAll method, merely an array version of the above strip
-        final String[] empty = new String[0];
-        final String[] fooSpace = new String[] { "  "+FOO+"  ", "  "+FOO, FOO+"  " };
-        final String[] fooDots = new String[] { ".."+FOO+"..", ".."+FOO, FOO+".." };
-        final String[] foo = new String[] { FOO, FOO, FOO };
+        final String[] empty = {};
+        final String[] fooSpace = { "  "+FOO+"  ", "  "+FOO, FOO+"  " };
+        final String[] fooDots = { ".."+FOO+"..", ".."+FOO, FOO+".." };
+        final String[] foo = { FOO, FOO, FOO };
 
         assertNull(StringUtils.stripAll((String[]) null));
         // Additional varargs tests
@@ -235,5 +235,14 @@ public class StringUtilsTrimStripTest  {
         assertEquals("eclair", StringUtils.stripAccents("\u00E9clair"), "Failed to handle easy example");
         assertEquals("ALOSZZCN aloszzcn", StringUtils.stripAccents("\u0104\u0141\u00D3\u015A\u017B\u0179\u0106\u0143 "
                 + "\u0105\u0142\u00F3\u015B\u017C\u017A\u0107\u0144"));
+    }
+
+    @Test
+    @Disabled
+    public void testStripAccents_Korean() {
+        // LANG-1655
+        final String input = "잊지마 넌 흐린 어둠사이 왼손으로 그린 별 하나";
+        assertEquals(input, StringUtils.stripAccents(input), "Failed to handle non-accented text");
+
     }
 }

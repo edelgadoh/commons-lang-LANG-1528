@@ -21,36 +21,21 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the Triple class.
  */
 public class ImmutableTripleTest {
-
-    @Test
-    public void testEmptyArrayLength() {
-        @SuppressWarnings("unchecked")
-        final ImmutableTriple<Integer, String, Boolean>[] empty = (ImmutableTriple<Integer, String, Boolean>[]) ImmutableTriple.EMPTY_ARRAY;
-        assertEquals(0, empty.length);
-    }
-
-    @Test
-    public void testEmptyArrayGenerics() {
-        final ImmutableTriple<Integer, String, Boolean>[] empty = ImmutableTriple.emptyArray();
-        assertEquals(0, empty.length);
-    }
 
     @Test
     public void testBasic() {
@@ -66,8 +51,21 @@ public class ImmutableTripleTest {
         assertNull(triple2.getLeft());
         assertEquals("bar", triple2.middle);
         assertEquals("bar", triple2.getMiddle());
-        assertEquals(new Integer(42), triple2.right);
-        assertEquals(new Integer(42), triple2.getRight());
+        assertEquals(Integer.valueOf(42), triple2.right);
+        assertEquals(Integer.valueOf(42), triple2.getRight());
+    }
+
+    @Test
+    public void testEmptyArrayGenerics() {
+        final ImmutableTriple<Integer, String, Boolean>[] empty = ImmutableTriple.emptyArray();
+        assertEquals(0, empty.length);
+    }
+
+    @Test
+    public void testEmptyArrayLength() {
+        @SuppressWarnings("unchecked")
+        final ImmutableTriple<Integer, String, Boolean>[] empty = (ImmutableTriple<Integer, String, Boolean>[]) ImmutableTriple.EMPTY_ARRAY;
+        assertEquals(0, empty.length);
     }
 
     @Test
@@ -120,14 +118,22 @@ public class ImmutableTripleTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
+    public void testOfNonNull() {
+        assertThrows(NullPointerException.class, () -> ImmutableTriple.ofNonNull(null, null, null));
+        assertThrows(NullPointerException.class, () -> ImmutableTriple.ofNonNull(null, null, "z"));
+        assertThrows(NullPointerException.class, () -> ImmutableTriple.ofNonNull(null, "y", "z"));
+        assertThrows(NullPointerException.class, () -> ImmutableTriple.ofNonNull("x", null, null));
+        assertThrows(NullPointerException.class, () -> ImmutableTriple.ofNonNull("x", "y", null));
+        final ImmutableTriple<String, String, String> pair = ImmutableTriple.ofNonNull("x", "y", "z");
+        assertEquals("x", pair.left);
+        assertEquals("y", pair.middle);
+        assertEquals("z", pair.right);
+    }
+
+    @Test
     public void testSerialization() throws Exception {
         final ImmutableTriple<Integer, String, Boolean> origTriple = ImmutableTriple.of(0, "foo", Boolean.TRUE);
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final ObjectOutputStream out = new ObjectOutputStream(baos);
-        out.writeObject(origTriple);
-        final ImmutableTriple<Integer, String, Boolean> deserializedTriple = (ImmutableTriple<Integer, String, Boolean>) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+        final ImmutableTriple<Integer, String, Boolean> deserializedTriple = SerializationUtils.roundtrip(origTriple);
         assertEquals(origTriple, deserializedTriple);
         assertEquals(origTriple.hashCode(), deserializedTriple.hashCode());
     }

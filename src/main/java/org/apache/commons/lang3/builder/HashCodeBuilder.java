@@ -20,13 +20,14 @@ package org.apache.commons.lang3.builder;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArraySorter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -191,8 +192,7 @@ public class HashCodeBuilder implements Builder<Integer> {
         try {
             register(object);
             // The elements in the returned array are not sorted and are not in any particular order.
-            final Field[] fields = clazz.getDeclaredFields();
-            Arrays.sort(fields, Comparator.comparing(Field::getName));
+            final Field[] fields = ArraySorter.sort(clazz.getDeclaredFields(), Comparator.comparing(Field::getName));
             AccessibleObject.setAccessible(fields, true);
             for (final Field field : fields) {
                 if (!ArrayUtils.contains(excludeFields, field.getName())
@@ -358,7 +358,7 @@ public class HashCodeBuilder implements Builder<Integer> {
      */
     public static <T> int reflectionHashCode(final int initialNonZeroOddNumber, final int multiplierNonZeroOddNumber, final T object,
             final boolean testTransients, final Class<? super T> reflectUpToClass, final String... excludeFields) {
-        Validate.notNull(object, "The object to build a hash code for must not be null");
+        Validate.notNull(object, "object");
         final HashCodeBuilder builder = new HashCodeBuilder(initialNonZeroOddNumber, multiplierNonZeroOddNumber);
         Class<?> clazz = object.getClass();
         reflectionAppend(object, clazz, builder, testTransients, excludeFields);
@@ -448,8 +448,6 @@ public class HashCodeBuilder implements Builder<Integer> {
         return reflectionHashCode(object, ReflectionToStringBuilder.toNoNullStringArray(excludeFields));
     }
 
-    // -------------------------------------------------------------------------
-
     /**
      * <p>
      * Uses reflection to build a valid hash code from the fields of {@code object}.
@@ -537,7 +535,7 @@ public class HashCodeBuilder implements Builder<Integer> {
     /**
      * Running total of the hashCode.
      */
-    private int iTotal = 0;
+    private int iTotal;
 
     /**
      * <p>
@@ -619,8 +617,6 @@ public class HashCodeBuilder implements Builder<Integer> {
         return this;
     }
 
-    // -------------------------------------------------------------------------
-
     /**
      * <p>
      * Append a {@code hashCode} for a {@code byte}.
@@ -634,8 +630,6 @@ public class HashCodeBuilder implements Builder<Integer> {
         iTotal = iTotal * iConstant + value;
         return this;
     }
-
-    // -------------------------------------------------------------------------
 
     /**
      * <p>
@@ -843,14 +837,12 @@ public class HashCodeBuilder implements Builder<Integer> {
         if (object == null) {
             iTotal = iTotal * iConstant;
 
+        } else if (ObjectUtils.isArray(object)) {
+            // factor out array case in order to keep method small enough
+            // to be inlined
+            appendArray(object);
         } else {
-            if (object.getClass().isArray()) {
-                // factor out array case in order to keep method small enough
-                // to be inlined
-                appendArray(object);
-            } else {
-                iTotal = iTotal * iConstant + object.hashCode();
-            }
+            iTotal = iTotal * iConstant + object.hashCode();
         }
         return this;
     }

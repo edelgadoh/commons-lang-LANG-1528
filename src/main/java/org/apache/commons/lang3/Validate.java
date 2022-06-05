@@ -80,11 +80,7 @@ public class Validate {
      * Constructor. This class should not normally be instantiated.
      */
     public Validate() {
-      super();
     }
-
-    // isTrue
-    //---------------------------------------------------------------------------------
 
     /**
      * <p>Validate that the argument condition is {@code true}; otherwise
@@ -185,9 +181,6 @@ public class Validate {
         }
     }
 
-    // notNull
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument is not {@code null};
      * otherwise throwing an exception.
@@ -202,7 +195,9 @@ public class Validate {
      * @return the validated object (never {@code null} for method chaining)
      * @throws NullPointerException if the object is {@code null}
      * @see #notNull(Object, String, Object...)
+     * @deprecated Use {@link Objects#requireNonNull(Object)}.
      */
+    @Deprecated
     public static <T> T notNull(final T object) {
         return notNull(object, DEFAULT_IS_NULL_EX_MESSAGE);
     }
@@ -219,7 +214,7 @@ public class Validate {
      * @param values  the optional values for the formatted exception message
      * @return the validated object (never {@code null} for method chaining)
      * @throws NullPointerException if the object is {@code null}
-     * @see #notNull(Object)
+     * @see Objects#requireNonNull(Object)
      */
     public static <T> T notNull(final T object, final String message, final Object... values) {
         return Objects.requireNonNull(object, () -> String.format(message, values));
@@ -272,9 +267,6 @@ public class Validate {
         return notEmpty(array, DEFAULT_NOT_EMPTY_ARRAY_EX_MESSAGE);
     }
 
-    // notEmpty collection
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument collection is neither {@code null}
      * nor a size of zero (no elements); otherwise throwing an exception
@@ -318,9 +310,6 @@ public class Validate {
     public static <T extends Collection<?>> T notEmpty(final T collection) {
         return notEmpty(collection, DEFAULT_NOT_EMPTY_COLLECTION_EX_MESSAGE);
     }
-
-    // notEmpty map
-    //---------------------------------------------------------------------------------
 
     /**
      * <p>Validate that the specified argument map is neither {@code null}
@@ -366,9 +355,6 @@ public class Validate {
         return notEmpty(map, DEFAULT_NOT_EMPTY_MAP_EX_MESSAGE);
     }
 
-    // notEmpty string
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument character sequence is
      * neither {@code null} nor a length of zero (no characters);
@@ -413,9 +399,6 @@ public class Validate {
     public static <T extends CharSequence> T notEmpty(final T chars) {
         return notEmpty(chars, DEFAULT_NOT_EMPTY_CHAR_SEQUENCE_EX_MESSAGE);
     }
-
-    // notBlank string
-    //---------------------------------------------------------------------------------
 
     /**
      * <p>Validate that the specified argument character sequence is
@@ -467,9 +450,6 @@ public class Validate {
         return notBlank(chars, DEFAULT_NOT_BLANK_EX_MESSAGE);
     }
 
-    // noNullElements array
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument array is neither
      * {@code null} nor contains any elements that are {@code null};
@@ -494,7 +474,7 @@ public class Validate {
      * @see #noNullElements(Object[])
      */
     public static <T> T[] noNullElements(final T[] array, final String message, final Object... values) {
-        notNull(array);
+        Objects.requireNonNull(array, "array");
         for (int i = 0; i < array.length; i++) {
             if (array[i] == null) {
                 final Object[] values2 = ArrayUtils.add(values, Integer.valueOf(i));
@@ -529,9 +509,6 @@ public class Validate {
         return noNullElements(array, DEFAULT_NO_NULL_ELEMENTS_ARRAY_EX_MESSAGE);
     }
 
-    // noNullElements iterable
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument iterable is neither
      * {@code null} nor contains any elements that are {@code null};
@@ -556,7 +533,7 @@ public class Validate {
      * @see #noNullElements(Iterable)
      */
     public static <T extends Iterable<?>> T noNullElements(final T iterable, final String message, final Object... values) {
-        notNull(iterable);
+        Objects.requireNonNull(iterable, "iterable");
         int i = 0;
         for (final Iterator<?> it = iterable.iterator(); it.hasNext(); i++) {
             if (it.next() == null) {
@@ -592,9 +569,6 @@ public class Validate {
         return noNullElements(iterable, DEFAULT_NO_NULL_ELEMENTS_COLLECTION_EX_MESSAGE);
     }
 
-    // validIndex array
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validates that the index is within the bounds of the argument
      * array; otherwise throwing an exception with the specified message.</p>
@@ -617,7 +591,7 @@ public class Validate {
      * @since 3.0
      */
     public static <T> T[] validIndex(final T[] array, final int index, final String message, final Object... values) {
-        notNull(array);
+        Objects.requireNonNull(array, "array");
         if (index < 0 || index >= array.length) {
             throw new IndexOutOfBoundsException(String.format(message, values));
         }
@@ -651,9 +625,6 @@ public class Validate {
         return validIndex(array, index, DEFAULT_VALID_INDEX_ARRAY_EX_MESSAGE, Integer.valueOf(index));
     }
 
-    // validIndex collection
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validates that the index is within the bounds of the argument
      * collection; otherwise throwing an exception with the specified message.</p>
@@ -676,7 +647,7 @@ public class Validate {
      * @since 3.0
      */
     public static <T extends Collection<?>> T validIndex(final T collection, final int index, final String message, final Object... values) {
-        notNull(collection);
+        Objects.requireNonNull(collection, "collection");
         if (index < 0 || index >= collection.size()) {
             throw new IndexOutOfBoundsException(String.format(message, values));
         }
@@ -707,9 +678,6 @@ public class Validate {
         return validIndex(collection, index, DEFAULT_VALID_INDEX_COLLECTION_EX_MESSAGE, Integer.valueOf(index));
     }
 
-    // validIndex string
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validates that the index is within the bounds of the argument
      * character sequence; otherwise throwing an exception with the
@@ -733,7 +701,7 @@ public class Validate {
      * @since 3.0
      */
     public static <T extends CharSequence> T validIndex(final T chars, final int index, final String message, final Object... values) {
-        notNull(chars);
+        Objects.requireNonNull(chars, "chars");
         if (index < 0 || index >= chars.length()) {
             throw new IndexOutOfBoundsException(String.format(message, values));
         }
@@ -767,9 +735,6 @@ public class Validate {
     public static <T extends CharSequence> T validIndex(final T chars, final int index) {
         return validIndex(chars, index, DEFAULT_VALID_INDEX_CHAR_SEQUENCE_EX_MESSAGE, Integer.valueOf(index));
     }
-
-    // validState
-    //---------------------------------------------------------------------------------
 
     /**
      * <p>Validate that the stateful condition is {@code true}; otherwise
@@ -818,9 +783,6 @@ public class Validate {
         }
     }
 
-    // matchesPattern
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validate that the specified argument character sequence matches the specified regular
      * expression pattern; otherwise throwing an exception.</p>
@@ -867,9 +829,6 @@ public class Validate {
         }
     }
 
-    // notNaN
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validates that the specified argument is not {@code NaN}; otherwise
      * throwing an exception.</p>
@@ -909,9 +868,6 @@ public class Validate {
         }
     }
 
-    // finite
-    //---------------------------------------------------------------------------------
-
     /**
      * <p>Validates that the specified argument is not infinite or {@code NaN};
      * otherwise throwing an exception.</p>
@@ -949,9 +905,6 @@ public class Validate {
             throw new IllegalArgumentException(String.format(message, values));
         }
     }
-
-    // inclusiveBetween
-    //---------------------------------------------------------------------------------
 
     /**
      * <p>Validate that the specified argument object fall between the two
@@ -1001,18 +954,18 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * inclusive values specified; otherwise, throws an exception.
-    *
-    * <pre>Validate.inclusiveBetween(0, 2, 1);</pre>
-    *
-    * @param start the inclusive start value
-    * @param end   the inclusive end value
-    * @param value the value to validate
-    * @throws IllegalArgumentException if the value falls outside the boundaries (inclusive)
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * inclusive values specified; otherwise, throws an exception.
+     *
+     * <pre>Validate.inclusiveBetween(0, 2, 1);</pre>
+     *
+     * @param start the inclusive start value
+     * @param end   the inclusive end value
+     * @param value the value to validate
+     * @throws IllegalArgumentException if the value falls outside the boundaries (inclusive)
+     *
+     * @since 3.3
+     */
     @SuppressWarnings("boxing")
     public static void inclusiveBetween(final long start, final long end, final long value) {
         // TODO when breaking BC, consider returning value
@@ -1022,21 +975,21 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * inclusive values specified; otherwise, throws an exception with the
-    * specified message.
-    *
-    * <pre>Validate.inclusiveBetween(0, 2, 1, "Not in range");</pre>
-    *
-    * @param start the inclusive start value
-    * @param end   the inclusive end value
-    * @param value the value to validate
-    * @param message the exception message if invalid, not null
-    *
-    * @throws IllegalArgumentException if the value falls outside the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * inclusive values specified; otherwise, throws an exception with the
+     * specified message.
+     *
+     * <pre>Validate.inclusiveBetween(0, 2, 1, "Not in range");</pre>
+     *
+     * @param start the inclusive start value
+     * @param end   the inclusive end value
+     * @param value the value to validate
+     * @param message the exception message if invalid, not null
+     *
+     * @throws IllegalArgumentException if the value falls outside the boundaries
+     *
+     * @since 3.3
+     */
     public static void inclusiveBetween(final long start, final long end, final long value, final String message) {
         // TODO when breaking BC, consider returning value
         if (value < start || value > end) {
@@ -1045,18 +998,18 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * inclusive values specified; otherwise, throws an exception.
-    *
-    * <pre>Validate.inclusiveBetween(0.1, 2.1, 1.1);</pre>
-    *
-    * @param start the inclusive start value
-    * @param end   the inclusive end value
-    * @param value the value to validate
-    * @throws IllegalArgumentException if the value falls outside the boundaries (inclusive)
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * inclusive values specified; otherwise, throws an exception.
+     *
+     * <pre>Validate.inclusiveBetween(0.1, 2.1, 1.1);</pre>
+     *
+     * @param start the inclusive start value
+     * @param end   the inclusive end value
+     * @param value the value to validate
+     * @throws IllegalArgumentException if the value falls outside the boundaries (inclusive)
+     *
+     * @since 3.3
+     */
     @SuppressWarnings("boxing")
     public static void inclusiveBetween(final double start, final double end, final double value) {
         // TODO when breaking BC, consider returning value
@@ -1066,21 +1019,21 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * inclusive values specified; otherwise, throws an exception with the
-    * specified message.
-    *
-    * <pre>Validate.inclusiveBetween(0.1, 2.1, 1.1, "Not in range");</pre>
-    *
-    * @param start the inclusive start value
-    * @param end   the inclusive end value
-    * @param value the value to validate
-    * @param message the exception message if invalid, not null
-    *
-    * @throws IllegalArgumentException if the value falls outside the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * inclusive values specified; otherwise, throws an exception with the
+     * specified message.
+     *
+     * <pre>Validate.inclusiveBetween(0.1, 2.1, 1.1, "Not in range");</pre>
+     *
+     * @param start the inclusive start value
+     * @param end   the inclusive end value
+     * @param value the value to validate
+     * @param message the exception message if invalid, not null
+     *
+     * @throws IllegalArgumentException if the value falls outside the boundaries
+     *
+     * @since 3.3
+     */
     public static void inclusiveBetween(final double start, final double end, final double value, final String message) {
         // TODO when breaking BC, consider returning value
         if (value < start || value > end) {
@@ -1139,18 +1092,18 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * exclusive values specified; otherwise, throws an exception.
-    *
-    * <pre>Validate.exclusiveBetween(0, 2, 1);</pre>
-    *
-    * @param start the exclusive start value
-    * @param end   the exclusive end value
-    * @param value the value to validate
-    * @throws IllegalArgumentException if the value falls out of the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * exclusive values specified; otherwise, throws an exception.
+     *
+     * <pre>Validate.exclusiveBetween(0, 2, 1);</pre>
+     *
+     * @param start the exclusive start value
+     * @param end   the exclusive end value
+     * @param value the value to validate
+     * @throws IllegalArgumentException if the value falls out of the boundaries
+     *
+     * @since 3.3
+     */
     @SuppressWarnings("boxing")
     public static void exclusiveBetween(final long start, final long end, final long value) {
         // TODO when breaking BC, consider returning value
@@ -1160,21 +1113,21 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * exclusive values specified; otherwise, throws an exception with the
-    * specified message.
-    *
-    * <pre>Validate.exclusiveBetween(0, 2, 1, "Not in range");</pre>
-    *
-    * @param start the exclusive start value
-    * @param end   the exclusive end value
-    * @param value the value to validate
-    * @param message the exception message if invalid, not null
-    *
-    * @throws IllegalArgumentException if the value falls outside the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * exclusive values specified; otherwise, throws an exception with the
+     * specified message.
+     *
+     * <pre>Validate.exclusiveBetween(0, 2, 1, "Not in range");</pre>
+     *
+     * @param start the exclusive start value
+     * @param end   the exclusive end value
+     * @param value the value to validate
+     * @param message the exception message if invalid, not null
+     *
+     * @throws IllegalArgumentException if the value falls outside the boundaries
+     *
+     * @since 3.3
+     */
     public static void exclusiveBetween(final long start, final long end, final long value, final String message) {
         // TODO when breaking BC, consider returning value
         if (value <= start || value >= end) {
@@ -1183,18 +1136,18 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * exclusive values specified; otherwise, throws an exception.
-    *
-    * <pre>Validate.exclusiveBetween(0.1, 2.1, 1.1);</pre>
-    *
-    * @param start the exclusive start value
-    * @param end   the exclusive end value
-    * @param value the value to validate
-    * @throws IllegalArgumentException if the value falls out of the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * exclusive values specified; otherwise, throws an exception.
+     *
+     * <pre>Validate.exclusiveBetween(0.1, 2.1, 1.1);</pre>
+     *
+     * @param start the exclusive start value
+     * @param end   the exclusive end value
+     * @param value the value to validate
+     * @throws IllegalArgumentException if the value falls out of the boundaries
+     *
+     * @since 3.3
+     */
     @SuppressWarnings("boxing")
     public static void exclusiveBetween(final double start, final double end, final double value) {
         // TODO when breaking BC, consider returning value
@@ -1204,30 +1157,27 @@ public class Validate {
     }
 
     /**
-    * Validate that the specified primitive value falls between the two
-    * exclusive values specified; otherwise, throws an exception with the
-    * specified message.
-    *
-    * <pre>Validate.exclusiveBetween(0.1, 2.1, 1.1, "Not in range");</pre>
-    *
-    * @param start the exclusive start value
-    * @param end   the exclusive end value
-    * @param value the value to validate
-    * @param message the exception message if invalid, not null
-    *
-    * @throws IllegalArgumentException if the value falls outside the boundaries
-    *
-    * @since 3.3
-    */
+     * Validate that the specified primitive value falls between the two
+     * exclusive values specified; otherwise, throws an exception with the
+     * specified message.
+     *
+     * <pre>Validate.exclusiveBetween(0.1, 2.1, 1.1, "Not in range");</pre>
+     *
+     * @param start the exclusive start value
+     * @param end   the exclusive end value
+     * @param value the value to validate
+     * @param message the exception message if invalid, not null
+     *
+     * @throws IllegalArgumentException if the value falls outside the boundaries
+     *
+     * @since 3.3
+     */
     public static void exclusiveBetween(final double start, final double end, final double value, final String message) {
         // TODO when breaking BC, consider returning value
         if (value <= start || value >= end) {
             throw new IllegalArgumentException(message);
         }
     }
-
-    // isInstanceOf
-    //---------------------------------------------------------------------------------
 
     /**
      * Validates that the argument is an instance of the specified class, if not throws an exception.
@@ -1277,9 +1227,6 @@ public class Validate {
         }
     }
 
-    // isAssignableFrom
-    //---------------------------------------------------------------------------------
-
     /**
      * Validates that the argument can be converted to the specified class, if not, throws an exception.
      *
@@ -1289,7 +1236,7 @@ public class Validate {
      *
      * <p>The message format of the exception is &quot;Cannot assign {type} to {superType}&quot;</p>
      *
-     * @param superType  the class the class must be validated against, not null
+     * @param superType  the class must be validated against, not null
      * @param type  the class to check, not null
      * @throws IllegalArgumentException if type argument is not assignable to the specified superType
      * @see #isAssignableFrom(Class, Class, String, Object...)
@@ -1298,9 +1245,9 @@ public class Validate {
      */
     public static void isAssignableFrom(final Class<?> superType, final Class<?> type) {
         // TODO when breaking BC, consider returning type
-        if (!superType.isAssignableFrom(type)) {
-            throw new IllegalArgumentException(String.format(DEFAULT_IS_ASSIGNABLE_EX_MESSAGE, type == null ? "null" : type.getName(),
-                    superType.getName()));
+        if (type == null || superType == null || !superType.isAssignableFrom(type)) {
+            throw new IllegalArgumentException(
+                String.format(DEFAULT_IS_ASSIGNABLE_EX_MESSAGE, ClassUtils.getName(type, "null type"), ClassUtils.getName(superType, "null type")));
         }
     }
 
@@ -1314,7 +1261,7 @@ public class Validate {
      * <p>The message of the exception is &quot;The validated object can not be converted to the&quot;
      * followed by the name of the class and &quot;class&quot;</p>
      *
-     * @param superType  the class the class must be validated against, not null
+     * @param superType  the class must be validated against, not null
      * @param type  the class to check, not null
      * @param message  the {@link String#format(String, Object...)} exception message if invalid, not null
      * @param values  the optional values for the formatted exception message, null array not recommended

@@ -16,10 +16,10 @@
  */
 package org.apache.commons.lang3;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -33,7 +33,6 @@ public class StringUtilsStartsEndsWithTest {
     private static final String BAR    = "BAR";
     private static final String FOOBAR = "FOOBAR";
 
-    //-----------------------------------------------------------------------
 
     /**
      * Test StringUtils.startsWith()

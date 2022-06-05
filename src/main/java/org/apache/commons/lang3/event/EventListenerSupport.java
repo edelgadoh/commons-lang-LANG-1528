@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -30,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -140,8 +140,8 @@ public class EventListenerSupport<L> implements Serializable {
      */
     public EventListenerSupport(final Class<L> listenerInterface, final ClassLoader classLoader) {
         this();
-        Validate.notNull(listenerInterface, "Listener interface cannot be null.");
-        Validate.notNull(classLoader, "ClassLoader cannot be null.");
+        Validate.notNull(listenerInterface, "listenerInterface");
+        Validate.notNull(classLoader, "classLoader");
         Validate.isTrue(listenerInterface.isInterface(), "Class %s is not an interface",
                 listenerInterface.getName());
         initializeTransientFields(listenerInterface, classLoader);
@@ -194,10 +194,8 @@ public class EventListenerSupport<L> implements Serializable {
      * @since 3.5
      */
     public void addListener(final L listener, final boolean allowDuplicate) {
-        Validate.notNull(listener, "Listener object cannot be null.");
-        if (allowDuplicate) {
-            listeners.add(listener);
-        } else if (!listeners.contains(listener)) {
+        Validate.notNull(listener, "listener");
+        if (allowDuplicate || !listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
@@ -220,7 +218,7 @@ public class EventListenerSupport<L> implements Serializable {
      *         {@code null}.
      */
     public void removeListener(final L listener) {
-        Validate.notNull(listener, "Listener object cannot be null.");
+        Validate.notNull(listener, "listener");
         listeners.remove(listener);
     }
 
@@ -268,14 +266,11 @@ public class EventListenerSupport<L> implements Serializable {
      */
     private void readObject(final ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
         @SuppressWarnings("unchecked") // Will throw CCE here if not correct
-        final
-        L[] srcListeners = (L[]) objectInputStream.readObject();
+        final L[] srcListeners = (L[]) objectInputStream.readObject();
 
         this.listeners = new CopyOnWriteArrayList<>(srcListeners);
 
-        @SuppressWarnings("unchecked") // Will throw CCE here if not correct
-        final
-        Class<L> listenerInterface = (Class<L>) srcListeners.getClass().getComponentType();
+        final Class<L> listenerInterface = ArrayUtils.getComponentType(srcListeners);
 
         initializeTransientFields(listenerInterface, Thread.currentThread().getContextClassLoader());
     }
@@ -286,10 +281,8 @@ public class EventListenerSupport<L> implements Serializable {
      * @param classLoader the class loader to be used
      */
     private void initializeTransientFields(final Class<L> listenerInterface, final ClassLoader classLoader) {
-        @SuppressWarnings("unchecked") // Will throw CCE here if not correct
-        final
-        L[] array = (L[]) Array.newInstance(listenerInterface, 0);
-        this.prototypeArray = array;
+        // Will throw CCE here if not correct
+        this.prototypeArray = ArrayUtils.newInstance(listenerInterface, 0);
         createProxy(listenerInterface, classLoader);
     }
 

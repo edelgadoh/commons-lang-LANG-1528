@@ -19,33 +19,18 @@ package org.apache.commons.lang3.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test the MutablePair class.
  */
 public class MutablePairTest {
-
-    @Test
-    public void testEmptyArrayLength() {
-        @SuppressWarnings("unchecked")
-        final MutablePair<Integer, String>[] empty = (MutablePair<Integer, String>[]) MutablePair.EMPTY_ARRAY;
-        assertEquals(0, empty.length);
-    }
-
-    @Test
-    public void testEmptyArrayGenerics() {
-        final MutablePair<Integer, String>[] empty = MutablePair.emptyArray();
-        assertEquals(0, empty.length);
-    }
 
     @Test
     public void testBasic() {
@@ -81,6 +66,19 @@ public class MutablePairTest {
     }
 
     @Test
+    public void testEmptyArrayGenerics() {
+        final MutablePair<Integer, String>[] empty = MutablePair.emptyArray();
+        assertEquals(0, empty.length);
+    }
+
+    @Test
+    public void testEmptyArrayLength() {
+        @SuppressWarnings("unchecked")
+        final MutablePair<Integer, String>[] empty = (MutablePair<Integer, String>[]) MutablePair.EMPTY_ARRAY;
+        assertEquals(0, empty.length);
+    }
+
+    @Test
     public void testEquals() {
         assertEquals(MutablePair.of(null, "foo"), MutablePair.of(null, "foo"));
         assertNotEquals(MutablePair.of("foo", 0), MutablePair.of("foo", null));
@@ -106,6 +104,16 @@ public class MutablePairTest {
     }
 
     @Test
+    public void testOfNonNull() {
+        assertThrows(NullPointerException.class, () -> MutablePair.ofNonNull(null, null));
+        assertThrows(NullPointerException.class, () -> MutablePair.ofNonNull(null, "x"));
+        assertThrows(NullPointerException.class, () -> MutablePair.ofNonNull("x", null));
+        final MutablePair<String, String> pair = MutablePair.ofNonNull("x", "y");
+        assertEquals("x", pair.left);
+        assertEquals("y", pair.right);
+    }
+
+    @Test
     public void testPairOfMapEntry() {
         final HashMap<Integer, String> map = new HashMap<>();
         map.put(0, "foo");
@@ -123,20 +131,15 @@ public class MutablePairTest {
         final MutablePair<Object, String> pair2 = MutablePair.of(null, "bar");
         assertNull(pair2.getLeft());
         assertEquals("bar", pair2.getRight());
-        final MutablePair pair3 = MutablePair.of(null, null);
+        final MutablePair<?, ?> pair3 = MutablePair.of(null, null);
         assertNull(pair3.left);
         assertNull(pair3.right);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testSerialization() throws Exception {
         final MutablePair<Integer, String> origPair = MutablePair.of(0, "foo");
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final ObjectOutputStream out = new ObjectOutputStream(baos);
-        out.writeObject(origPair);
-        final MutablePair<Integer, String> deserializedPair = (MutablePair<Integer, String>) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+        final MutablePair<Integer, String> deserializedPair = SerializationUtils.roundtrip(origPair);
         assertEquals(origPair, deserializedPair);
         assertEquals(origPair.hashCode(), deserializedPair.hashCode());
     }

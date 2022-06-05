@@ -36,7 +36,7 @@ import org.apache.commons.lang3.Validate;
  * <p>
  * The ability is provided to break the scoping restrictions coded by the programmer. This can allow fields to be
  * changed that shouldn't be. This facility should be used with care.
- *
+ * </p>
  * @since 2.5
  */
 public class FieldUtils {
@@ -48,7 +48,6 @@ public class FieldUtils {
      * </p>
      */
     public FieldUtils() {
-        super();
     }
 
     /**
@@ -63,9 +62,7 @@ public class FieldUtils {
      *             if the class is {@code null}, or the field name is blank or empty
      */
     public static Field getField(final Class<?> cls, final String fieldName) {
-        final Field field = getField(cls, fieldName, false);
-        MemberUtils.setAccessibleWorkaround(field);
-        return field;
+        return MemberUtils.setAccessibleWorkaround(getField(cls, fieldName, false));
     }
 
     /**
@@ -81,12 +78,12 @@ public class FieldUtils {
      *            {@link java.lang.reflect.AccessibleObject#setAccessible(boolean)} method. {@code false} will only
      *            match {@code public} fields.
      * @return the Field object
-     * @throws IllegalArgumentException
-     *             if the class is {@code null}, or the field name is blank or empty or is matched at multiple places
-     *             in the inheritance hierarchy
+     * @throws NullPointerException if the class is {@code null}
+     * @throws IllegalArgumentException if the field name is blank or empty or is matched at multiple places
+     * in the inheritance hierarchy
      */
     public static Field getField(final Class<?> cls, final String fieldName, final boolean forceAccess) {
-        Validate.notNull(cls, "The class must not be null");
+        Validate.notNull(cls, "cls");
         Validate.isTrue(StringUtils.isNotBlank(fieldName), "The field name must not be blank/empty");
         // FIXME is this workaround still needed? lang requires Java 6
         // Sun Java 1.3 has a bugged implementation of getField hence we write the
@@ -108,12 +105,11 @@ public class FieldUtils {
                 final Field field = acls.getDeclaredField(fieldName);
                 // getDeclaredField checks for non-public scopes as well
                 // and it returns accurate results
-                if (!Modifier.isPublic(field.getModifiers())) {
-                    if (forceAccess) {
-                        field.setAccessible(true);
-                    } else {
+                if (!MemberUtils.isPublic(field)) {
+                    if (!forceAccess) {
                         continue;
                     }
+                    field.setAccessible(true);
                 }
                 return field;
             } catch (final NoSuchFieldException ex) { // NOPMD
@@ -169,17 +165,16 @@ public class FieldUtils {
      *             if the class is {@code null}, or the field name is blank or empty
      */
     public static Field getDeclaredField(final Class<?> cls, final String fieldName, final boolean forceAccess) {
-        Validate.notNull(cls, "The class must not be null");
+        Validate.notNull(cls, "cls");
         Validate.isTrue(StringUtils.isNotBlank(fieldName), "The field name must not be blank/empty");
         try {
             // only consider the specified class by using getDeclaredField()
             final Field field = cls.getDeclaredField(fieldName);
             if (!MemberUtils.isAccessible(field)) {
-                if (forceAccess) {
-                    field.setAccessible(true);
-                } else {
+                if (!forceAccess) {
                     return null;
                 }
+                field.setAccessible(true);
             }
             return field;
         } catch (final NoSuchFieldException e) { // NOPMD
@@ -199,8 +194,7 @@ public class FieldUtils {
      * @since 3.2
      */
     public static Field[] getAllFields(final Class<?> cls) {
-        final List<Field> allFieldsList = getAllFieldsList(cls);
-        return allFieldsList.toArray(ArrayUtils.EMPTY_FIELD_ARRAY);
+        return getAllFieldsList(cls).toArray(ArrayUtils.EMPTY_FIELD_ARRAY);
     }
 
     /**
@@ -214,7 +208,7 @@ public class FieldUtils {
      * @since 3.2
      */
     public static List<Field> getAllFieldsList(final Class<?> cls) {
-        Validate.notNull(cls, "The class must not be null");
+        Validate.notNull(cls, "cls");
         final List<Field> allFields = new ArrayList<>();
         Class<?> currentClass = cls;
         while (currentClass != null) {
@@ -237,8 +231,7 @@ public class FieldUtils {
      * @since 3.4
      */
     public static Field[] getFieldsWithAnnotation(final Class<?> cls, final Class<? extends Annotation> annotationCls) {
-        final List<Field> annotatedFieldsList = getFieldsListWithAnnotation(cls, annotationCls);
-        return annotatedFieldsList.toArray(ArrayUtils.EMPTY_FIELD_ARRAY);
+        return getFieldsListWithAnnotation(cls, annotationCls).toArray(ArrayUtils.EMPTY_FIELD_ARRAY);
     }
 
     /**
@@ -253,7 +246,7 @@ public class FieldUtils {
      * @since 3.4
      */
     public static List<Field> getFieldsListWithAnnotation(final Class<?> cls, final Class<? extends Annotation> annotationCls) {
-        Validate.notNull(annotationCls, "The annotation class must not be null");
+        Validate.notNull(annotationCls, "annotationCls");
         final List<Field> allFields = getAllFieldsList(cls);
         final List<Field> annotatedFields = new ArrayList<>();
         for (final Field field : allFields) {
@@ -294,8 +287,8 @@ public class FieldUtils {
      *             if the field is not made accessible
      */
     public static Object readStaticField(final Field field, final boolean forceAccess) throws IllegalAccessException {
-        Validate.notNull(field, "The field must not be null");
-        Validate.isTrue(Modifier.isStatic(field.getModifiers()), "The field '%s' is not static", field.getName());
+        Validate.notNull(field, "field");
+        Validate.isTrue(MemberUtils.isStatic(field), "The field '%s' is not static", field.getName());
         return readField(field, (Object) null, forceAccess);
     }
 
@@ -420,7 +413,7 @@ public class FieldUtils {
      *             if the field is not made accessible
      */
     public static Object readField(final Field field, final Object target, final boolean forceAccess) throws IllegalAccessException {
-        Validate.notNull(field, "The field must not be null");
+        Validate.notNull(field, "field");
         if (forceAccess && !field.isAccessible()) {
             field.setAccessible(true);
         } else {
@@ -464,7 +457,7 @@ public class FieldUtils {
      *             if the named field is not made accessible
      */
     public static Object readField(final Object target, final String fieldName, final boolean forceAccess) throws IllegalAccessException {
-        Validate.notNull(target, "target object must not be null");
+        Validate.notNull(target, "target");
         final Class<?> cls = target.getClass();
         final Field field = getField(cls, fieldName, forceAccess);
         Validate.isTrue(field != null, "Cannot locate field %s on %s", fieldName, cls);
@@ -507,7 +500,7 @@ public class FieldUtils {
      *             if the field is not made accessible
      */
     public static Object readDeclaredField(final Object target, final String fieldName, final boolean forceAccess) throws IllegalAccessException {
-        Validate.notNull(target, "target object must not be null");
+        Validate.notNull(target, "target");
         final Class<?> cls = target.getClass();
         final Field field = getDeclaredField(cls, fieldName, forceAccess);
         Validate.isTrue(field != null, "Cannot locate declared field %s.%s", cls, fieldName);
@@ -548,8 +541,8 @@ public class FieldUtils {
      *             if the field is not made accessible or is {@code final}
      */
     public static void writeStaticField(final Field field, final Object value, final boolean forceAccess) throws IllegalAccessException {
-        Validate.notNull(field, "The field must not be null");
-        Validate.isTrue(Modifier.isStatic(field.getModifiers()), "The field %s.%s is not static", field.getDeclaringClass().getName(),
+        Validate.notNull(field, "field");
+        Validate.isTrue(MemberUtils.isStatic(field), "The field %s.%s is not static", field.getDeclaringClass().getName(),
                 field.getName());
         writeField(field, (Object) null, value, forceAccess);
     }
@@ -682,7 +675,7 @@ public class FieldUtils {
      */
     public static void writeField(final Field field, final Object target, final Object value, final boolean forceAccess)
             throws IllegalAccessException {
-        Validate.notNull(field, "The field must not be null");
+        Validate.notNull(field, "field");
         if (forceAccess && !field.isAccessible()) {
             field.setAccessible(true);
         } else {
@@ -722,7 +715,7 @@ public class FieldUtils {
      */
     @Deprecated
     public static void removeFinalModifier(final Field field, final boolean forceAccess) {
-        Validate.notNull(field, "The field must not be null");
+        Validate.notNull(field, "field");
 
         try {
             if (Modifier.isFinal(field.getModifiers())) {
@@ -740,11 +733,11 @@ public class FieldUtils {
                     }
                 }
             }
-        } catch (final NoSuchFieldException | IllegalAccessException ignored) {
+        } catch (final NoSuchFieldException | IllegalAccessException e) {
             if (SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_12)) {
               throw new UnsupportedOperationException(
                   "In java 12+ final cannot be removed.",
-                  ignored
+                  e
               );
             }
             // else no exception is thrown because we can modify final.
@@ -791,7 +784,7 @@ public class FieldUtils {
      */
     public static void writeField(final Object target, final String fieldName, final Object value, final boolean forceAccess)
             throws IllegalAccessException {
-        Validate.notNull(target, "target object must not be null");
+        Validate.notNull(target, "target");
         final Class<?> cls = target.getClass();
         final Field field = getField(cls, fieldName, forceAccess);
         Validate.isTrue(field != null, "Cannot locate declared field %s.%s", cls.getName(), fieldName);
@@ -839,7 +832,7 @@ public class FieldUtils {
      */
     public static void writeDeclaredField(final Object target, final String fieldName, final Object value, final boolean forceAccess)
             throws IllegalAccessException {
-        Validate.notNull(target, "target object must not be null");
+        Validate.notNull(target, "target");
         final Class<?> cls = target.getClass();
         final Field field = getDeclaredField(cls, fieldName, forceAccess);
         Validate.isTrue(field != null, "Cannot locate declared field %s.%s", cls.getName(), fieldName);

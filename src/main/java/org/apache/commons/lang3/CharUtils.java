@@ -16,12 +16,14 @@
  */
 package org.apache.commons.lang3;
 
+import java.util.Objects;
+
 /**
  * <p>Operations on char primitives and Character objects.</p>
  *
  * <p>This class tries to handle {@code null} input gracefully.
  * An exception will not be thrown for a {@code null} input.
- * Each method documents its behaviour in more detail.</p>
+ * Each method documents its behavior in more detail.</p>
  *
  * <p>#ThreadSafe#</p>
  * @since 2.1
@@ -42,7 +44,7 @@ public class CharUtils {
     public static final char LF = '\n';
 
     /**
-     * Carriage return characterf CR ('\r', Unicode 000d).
+     * Carriage return character CR ('\r', Unicode 000d).
      *
      * @see <a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.10.6">JLF: Escape Sequences
      *      for Character and String Literals</a>
@@ -58,9 +60,7 @@ public class CharUtils {
     public static final char NUL = '\0';
 
     static {
-        for (char c = 0; c < CHAR_STRING_ARRAY.length; c++) {
-            CHAR_STRING_ARRAY[c] = String.valueOf(c);
-        }
+        ArrayUtils.setAll(CHAR_STRING_ARRAY, i -> String.valueOf((char) i));
     }
 
     /**
@@ -71,10 +71,8 @@ public class CharUtils {
      * to operate.</p>
      */
     public CharUtils() {
-      super();
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts the character to a Character.</p>
      *
@@ -113,13 +111,9 @@ public class CharUtils {
      * @return the Character value of the first letter of the String
      */
     public static Character toCharacterObject(final String str) {
-        if (StringUtils.isEmpty(str)) {
-            return null;
-        }
-        return Character.valueOf(str.charAt(0));
+        return StringUtils.isEmpty(str) ? null : Character.valueOf(str.charAt(0));
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts the Character to a char throwing an exception for {@code null}.</p>
      *
@@ -131,11 +125,10 @@ public class CharUtils {
      *
      * @param ch  the character to convert
      * @return the char value of the Character
-     * @throws IllegalArgumentException if the Character is null
+     * @throws NullPointerException if the Character is null
      */
     public static char toChar(final Character ch) {
-        Validate.notNull(ch, "The Character must not be null");
-        return ch.charValue();
+        return Objects.requireNonNull(ch, "ch").charValue();
     }
 
     /**
@@ -152,13 +145,9 @@ public class CharUtils {
      * @return the char value of the Character or the default if null
      */
     public static char toChar(final Character ch, final char defaultValue) {
-        if (ch == null) {
-            return defaultValue;
-        }
-        return ch.charValue();
+        return ch != null ? ch.charValue() : defaultValue;
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts the String to a char using the first character, throwing
      * an exception on empty Strings.</p>
@@ -172,6 +161,7 @@ public class CharUtils {
      *
      * @param str  the character to convert
      * @return the char value of the first letter of the String
+     * @throws NullPointerException if the string is null
      * @throws IllegalArgumentException if the String is empty
      */
     public static char toChar(final String str) {
@@ -195,13 +185,9 @@ public class CharUtils {
      * @return the char value of the first letter of the String or the default if null
      */
     public static char toChar(final String str, final char defaultValue) {
-        if (StringUtils.isEmpty(str)) {
-            return defaultValue;
-        }
-        return str.charAt(0);
+        return StringUtils.isEmpty(str) ? defaultValue : str.charAt(0);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts the character to the Integer it represents, throwing an
      * exception if the character is not numeric.</p>
@@ -240,10 +226,7 @@ public class CharUtils {
      * @return the int value of the character
      */
     public static int toIntValue(final char ch, final int defaultValue) {
-        if (!isAsciiNumeric(ch)) {
-            return defaultValue;
-        }
-        return ch - 48;
+        return isAsciiNumeric(ch) ? ch - 48 : defaultValue;
     }
 
     /**
@@ -260,11 +243,11 @@ public class CharUtils {
      *
      * @param ch  the character to convert, not null
      * @return the int value of the character
-     * @throws IllegalArgumentException if the Character is not ASCII numeric or is null
+     * @throws NullPointerException if the Character is null
+     * @throws IllegalArgumentException if the Character is not ASCII numeric
      */
     public static int toIntValue(final Character ch) {
-        Validate.notNull(ch, "The character must not be null");
-        return toIntValue(ch.charValue());
+        return toIntValue(toChar(ch));
     }
 
     /**
@@ -284,13 +267,9 @@ public class CharUtils {
      * @return the int value of the character
      */
     public static int toIntValue(final Character ch, final int defaultValue) {
-        if (ch == null) {
-            return defaultValue;
-        }
-        return toIntValue(ch.charValue(), defaultValue);
+        return ch != null ? toIntValue(ch.charValue(), defaultValue) : defaultValue;
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts the character to a String that contains the one character.</p>
      *
@@ -306,10 +285,10 @@ public class CharUtils {
      * @return a String containing the one specified character
      */
     public static String toString(final char ch) {
-        if (ch < 128) {
+        if (ch < CHAR_STRING_ARRAY.length) {
             return CHAR_STRING_ARRAY[ch];
         }
-        return new String(new char[] {ch});
+        return String.valueOf(ch);
     }
 
     /**
@@ -330,13 +309,9 @@ public class CharUtils {
      * @return a String containing the one specified character
      */
     public static String toString(final Character ch) {
-        if (ch == null) {
-            return null;
-        }
-        return toString(ch.charValue());
+        return ch != null ? toString(ch.charValue()) : null;
     }
 
-    //--------------------------------------------------------------------------
     /**
      * <p>Converts the string to the Unicode format '\u0020'.</p>
      *
@@ -375,13 +350,9 @@ public class CharUtils {
      * @return the escaped Unicode string, null if null input
      */
     public static String unicodeEscaped(final Character ch) {
-        if (ch == null) {
-            return null;
-        }
-        return unicodeEscaped(ch.charValue());
+        return ch != null ? unicodeEscaped(ch.charValue()) : null;
     }
 
-    //--------------------------------------------------------------------------
     /**
      * <p>Checks whether the character is ASCII 7 bit.</p>
      *
@@ -545,6 +516,6 @@ public class CharUtils {
      * @since 3.4
      */
     public static int compare(final char x, final char y) {
-        return x-y;
+        return x - y;
     }
 }

@@ -40,8 +40,8 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  */
@@ -388,6 +388,8 @@ public class AnnotationUtilsTest {
         long timeout() default 0L;
 
         class None extends Throwable {
+
+            private static final long serialVersionUID = 1L;
         }
     }
 

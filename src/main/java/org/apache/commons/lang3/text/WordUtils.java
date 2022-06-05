@@ -27,10 +27,10 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>This class tries to handle {@code null} input gracefully.
  * An exception will not be thrown for a {@code null} input.
- * Each method documents its behaviour in more detail.</p>
+ * Each method documents its behavior in more detail.</p>
  *
  * @since 2.0
- * @deprecated as of 3.6, use commons-text
+ * @deprecated As of 3.6, use Apache Commons Text
  * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/WordUtils.html">
  * WordUtils</a> instead
  */
@@ -46,11 +46,8 @@ public class WordUtils {
      * instance to operate.</p>
      */
     public WordUtils() {
-      super();
     }
 
-    // Wrapping
-    //--------------------------------------------------------------------------
     /**
      * <p>Wraps a single line of text, identifying words by {@code ' '}.</p>
      *
@@ -316,28 +313,26 @@ public class WordUtils {
                 wrappedLine.append(newLineStr);
                 offset = spaceToWrapAt + 1;
 
+            } else // really long word or URL
+            if (wrapLongWords) {
+                // wrap really long word one line at a time
+                wrappedLine.append(str, offset, wrapLength + offset);
+                wrappedLine.append(newLineStr);
+                offset += wrapLength;
             } else {
-                // really long word or URL
-                if (wrapLongWords) {
-                    // wrap really long word one line at a time
-                    wrappedLine.append(str, offset, wrapLength + offset);
-                    wrappedLine.append(newLineStr);
-                    offset += wrapLength;
-                } else {
-                    // do not wrap really long word, just extend beyond limit
-                    matcher = patternToWrapOn.matcher(str.substring(offset + wrapLength));
-                    if (matcher.find()) {
-                        spaceToWrapAt = matcher.start() + offset + wrapLength;
-                    }
+                // do not wrap really long word, just extend beyond limit
+                matcher = patternToWrapOn.matcher(str.substring(offset + wrapLength));
+                if (matcher.find()) {
+                    spaceToWrapAt = matcher.start() + offset + wrapLength;
+                }
 
-                    if (spaceToWrapAt >= 0) {
-                        wrappedLine.append(str, offset, spaceToWrapAt);
-                        wrappedLine.append(newLineStr);
-                        offset = spaceToWrapAt + 1;
-                    } else {
-                        wrappedLine.append(str, offset, str.length());
-                        offset = inputLineLength;
-                    }
+                if (spaceToWrapAt >= 0) {
+                    wrappedLine.append(str, offset, spaceToWrapAt);
+                    wrappedLine.append(newLineStr);
+                    offset = spaceToWrapAt + 1;
+                } else {
+                    wrappedLine.append(str, offset, str.length());
+                    offset = inputLineLength;
                 }
             }
         }
@@ -349,7 +344,6 @@ public class WordUtils {
     }
 
     // Capitalizing
-    //-----------------------------------------------------------------------
     /**
      * <p>Capitalizes all the whitespace separated words in a String.
      * Only the first character of each word is changed. To convert the
@@ -424,7 +418,6 @@ public class WordUtils {
         return new String(buffer);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Converts all the whitespace separated words in a String into capitalized words,
      * that is each word is made up of a titlecase character and then a series of
@@ -483,7 +476,6 @@ public class WordUtils {
         return capitalize(str, delimiters);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Uncapitalizes all the whitespace separated words in a String.
      * Only the first character of each word is changed.</p>
@@ -549,7 +541,6 @@ public class WordUtils {
         return new String(buffer);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Swaps the case of a String using a word based algorithm.</p>
      *
@@ -582,10 +573,7 @@ public class WordUtils {
 
         for (int i = 0; i < buffer.length; i++) {
             final char ch = buffer[i];
-            if (Character.isUpperCase(ch)) {
-                buffer[i] = Character.toLowerCase(ch);
-                whitespace = false;
-            } else if (Character.isTitleCase(ch)) {
+            if (Character.isUpperCase(ch) || Character.isTitleCase(ch)) {
                 buffer[i] = Character.toLowerCase(ch);
                 whitespace = false;
             } else if (Character.isLowerCase(ch)) {
@@ -602,7 +590,6 @@ public class WordUtils {
         return new String(buffer);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Extracts the initial characters from each word in the String.</p>
      *
@@ -680,7 +667,6 @@ public class WordUtils {
         return new String(buf, 0, count);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Checks if the String contains all words in the given array.</p>
      *
@@ -720,7 +706,6 @@ public class WordUtils {
         return true;
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Is the character a delimiter.
      *

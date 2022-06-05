@@ -213,11 +213,11 @@ public class EqualsBuilder implements Builder<Boolean> {
      */
     private boolean isEquals = true;
 
-    private boolean testTransients = false;
-    private boolean testRecursive = false;
+    private boolean testTransients;
+    private boolean testRecursive;
     private List<Class<?>> bypassReflectionClasses;
-    private Class<?> reflectUpToClass = null;
-    private String[] excludeFields = null;
+    private Class<?> reflectUpToClass;
+    private String[] excludeFields;
 
     /**
      * <p>Constructor for EqualsBuilder.</p>
@@ -231,8 +231,6 @@ public class EqualsBuilder implements Builder<Boolean> {
         bypassReflectionClasses.add(String.class); //hashCode field being lazy but not transient
     }
 
-    //-------------------------------------------------------------------------
-
     /**
      * Set whether to include transient fields when reflectively comparing objects.
      * @param testTransients whether to test transient fields
@@ -245,9 +243,12 @@ public class EqualsBuilder implements Builder<Boolean> {
     }
 
     /**
-     * Set whether to include transient fields when reflectively comparing objects.
-     * @param testRecursive  whether to do a recursive test
+     * Set whether to test fields recursively, instead of using their equals method, when reflectively comparing objects.
+     * String objects, which cache a hash value, are automatically excluded from recursive testing.
+     * You may specify other exceptions by calling {@link #setBypassReflectionClasses(List)}.
+     * @param testRecursive whether to do a recursive test
      * @return EqualsBuilder - used to chain calls.
+     * @see #setBypassReflectionClasses(List)
      * @since 3.6
      */
     public EqualsBuilder setTestRecursive(final boolean testRecursive) {
@@ -265,6 +266,7 @@ public class EqualsBuilder implements Builder<Boolean> {
      * your own set of classes here, remember to include {@code String} class, too.</p>
      * @param bypassReflectionClasses  classes to bypass reflection test
      * @return EqualsBuilder - used to chain calls.
+     * @see #setTestRecursive(boolean)
      * @since 3.8
      */
     public EqualsBuilder setBypassReflectionClasses(final List<Class<?>> bypassReflectionClasses) {
@@ -528,17 +530,15 @@ public class EqualsBuilder implements Builder<Boolean> {
         try {
             if (testClass.isArray()) {
                 append(lhs, rhs);
+            } else //If either class is being excluded, call normal object equals method on lhsClass.
+            if (bypassReflectionClasses != null
+                    && (bypassReflectionClasses.contains(lhsClass) || bypassReflectionClasses.contains(rhsClass))) {
+                isEquals = lhs.equals(rhs);
             } else {
-                //If either class is being excluded, call normal object equals method on lhsClass.
-                if (bypassReflectionClasses != null
-                        && (bypassReflectionClasses.contains(lhsClass) || bypassReflectionClasses.contains(rhsClass))) {
-                    isEquals = lhs.equals(rhs);
-                } else {
+                reflectionAppend(lhs, rhs, testClass);
+                while (testClass.getSuperclass() != null && testClass != reflectUpToClass) {
+                    testClass = testClass.getSuperclass();
                     reflectionAppend(lhs, rhs, testClass);
-                    while (testClass.getSuperclass() != null && testClass != reflectUpToClass) {
-                        testClass = testClass.getSuperclass();
-                        reflectionAppend(lhs, rhs, testClass);
-                    }
                 }
             }
         } catch (final IllegalArgumentException e) {
@@ -548,7 +548,6 @@ public class EqualsBuilder implements Builder<Boolean> {
             // If a subclass has ivars that we are trying to test them, we get an
             // exception and we know that the objects are not equal.
             isEquals = false;
-            return this;
         }
         return this;
     }
@@ -595,8 +594,6 @@ public class EqualsBuilder implements Builder<Boolean> {
         }
     }
 
-    //-------------------------------------------------------------------------
-
     /**
      * <p>Adds the result of {@code super.equals()} to this builder.</p>
      *
@@ -611,8 +608,6 @@ public class EqualsBuilder implements Builder<Boolean> {
         isEquals = superEquals;
         return this;
     }
-
-    //-------------------------------------------------------------------------
 
     /**
      * <p>Test if two {@code Object}s are equal using either
@@ -641,13 +636,11 @@ public class EqualsBuilder implements Builder<Boolean> {
             // factor out array case in order to keep method small enough
             // to be inlined
             appendArray(lhs, rhs);
+        } else // The simple case, not an array, just test the element
+        if (testRecursive && !ClassUtils.isPrimitiveOrWrapper(lhsClass)) {
+            reflectionAppend(lhs, rhs);
         } else {
-            // The simple case, not an array, just test the element
-            if (testRecursive && !ClassUtils.isPrimitiveOrWrapper(lhsClass)) {
-                reflectionAppend(lhs, rhs);
-            } else {
-                isEquals = lhs.equals(rhs);
-            }
+            isEquals = lhs.equals(rhs);
         }
         return this;
     }

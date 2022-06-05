@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -104,8 +105,8 @@ public class DiffBuilder<T> implements Builder<DiffResult<T>> {
     public DiffBuilder(final T lhs, final T rhs,
             final ToStringStyle style, final boolean testTriviallyEqual) {
 
-        Validate.notNull(lhs, "lhs cannot be null");
-        Validate.notNull(rhs, "rhs cannot be null");
+        Validate.notNull(lhs, "lhs");
+        Validate.notNull(rhs, "rhs");
 
         this.diffs = new ArrayList<>();
         this.left = lhs;
@@ -811,7 +812,7 @@ public class DiffBuilder<T> implements Builder<DiffResult<T>> {
             return this;
         }
 
-        Object objectToTest;
+        final Object objectToTest;
         if (lhs != null) {
             objectToTest = lhs;
         } else {
@@ -819,7 +820,7 @@ public class DiffBuilder<T> implements Builder<DiffResult<T>> {
             objectToTest = rhs;
         }
 
-        if (objectToTest.getClass().isArray()) {
+        if (ObjectUtils.isArray(objectToTest)) {
             if (objectToTest instanceof boolean[]) {
                 return append(fieldName, (boolean[]) lhs, (boolean[]) rhs);
             }
@@ -943,14 +944,13 @@ public class DiffBuilder<T> implements Builder<DiffResult<T>> {
      * @param diffResult
      *            the {@code DiffResult} to append
      * @return this
-     * @throws IllegalArgumentException
-     *             if field name is {@code null}
+     * @throws NullPointerException if field name is {@code null}
      * @since 3.5
      */
     public DiffBuilder<T> append(final String fieldName,
             final DiffResult<T> diffResult) {
         validateFieldNameNotNull(fieldName);
-        Validate.notNull(diffResult, "Diff result cannot be null");
+        Validate.notNull(diffResult, "diffResult");
         if (objectsTriviallyEqual) {
             return this;
         }
@@ -978,7 +978,7 @@ public class DiffBuilder<T> implements Builder<DiffResult<T>> {
     }
 
     private void validateFieldNameNotNull(final String fieldName) {
-        Validate.notNull(fieldName, "Field name cannot be null");
+        Validate.notNull(fieldName, "fieldName");
     }
 
 }

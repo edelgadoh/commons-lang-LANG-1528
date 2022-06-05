@@ -57,7 +57,6 @@ public class DurationFormatUtils {
      * to operate.</p>
      */
     public DurationFormatUtils() {
-        super();
     }
 
     /**
@@ -69,7 +68,6 @@ public class DurationFormatUtils {
      */
     public static final String ISO_EXTENDED_FORMAT_PATTERN = "'P'yyyy'Y'M'M'd'DT'H'H'm'M's.SSS'S'";
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Formats the time gap as a string.</p>
      *
@@ -77,7 +75,7 @@ public class DurationFormatUtils {
      *
      * @param durationMillis  the duration to format
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if durationMillis is negative
+     * @throws IllegalArgumentException if durationMillis is negative
      */
     public static String formatDurationHMS(final long durationMillis) {
         return formatDuration(durationMillis, "HH:mm:ss.SSS");
@@ -93,7 +91,7 @@ public class DurationFormatUtils {
      *
      * @param durationMillis  the duration to format
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if durationMillis is negative
+     * @throws IllegalArgumentException if durationMillis is negative
      */
     public static String formatDurationISO(final long durationMillis) {
         return formatDuration(durationMillis, ISO_EXTENDED_FORMAT_PATTERN, false);
@@ -108,7 +106,7 @@ public class DurationFormatUtils {
      * @param durationMillis  the duration to format
      * @param format  the way in which to format the duration, not null
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if durationMillis is negative
+     * @throws IllegalArgumentException if durationMillis is negative
      */
     public static String formatDuration(final long durationMillis, final String format) {
         return formatDuration(durationMillis, format, true);
@@ -125,7 +123,7 @@ public class DurationFormatUtils {
      * @param format  the way in which to format the duration, not null
      * @param padWithZeros  whether to pad the left hand side of numbers with 0's
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if durationMillis is negative
+     * @throws IllegalArgumentException if durationMillis is negative
      */
     public static String formatDuration(final long durationMillis, final String format, final boolean padWithZeros) {
         Validate.inclusiveBetween(0, Long.MAX_VALUE, durationMillis, "durationMillis must not be negative");
@@ -168,7 +166,7 @@ public class DurationFormatUtils {
      * @param suppressLeadingZeroElements  suppresses leading 0 elements
      * @param suppressTrailingZeroElements  suppresses trailing 0 elements
      * @return the formatted text in days/hours/minutes/seconds, not null
-     * @throws java.lang.IllegalArgumentException if durationMillis is negative
+     * @throws IllegalArgumentException if durationMillis is negative
      */
     public static String formatDurationWords(
         final long durationMillis,
@@ -223,7 +221,6 @@ public class DurationFormatUtils {
         return duration.trim();
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>Formats the time gap as a string.</p>
      *
@@ -232,7 +229,7 @@ public class DurationFormatUtils {
      * @param startMillis  the start of the duration to format
      * @param endMillis  the end of the duration to format
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if startMillis is greater than endMillis
+     * @throws IllegalArgumentException if startMillis is greater than endMillis
      */
     public static String formatPeriodISO(final long startMillis, final long endMillis) {
         return formatPeriod(startMillis, endMillis, ISO_EXTENDED_FORMAT_PATTERN, false, TimeZone.getDefault());
@@ -246,7 +243,7 @@ public class DurationFormatUtils {
      * @param endMillis  the end of the duration
      * @param format  the way in which to format the duration, not null
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if startMillis is greater than endMillis
+     * @throws IllegalArgumentException if startMillis is greater than endMillis
      */
     public static String formatPeriod(final long startMillis, final long endMillis, final String format) {
         return formatPeriod(startMillis, endMillis, format, true, TimeZone.getDefault());
@@ -255,7 +252,7 @@ public class DurationFormatUtils {
     /**
      * <p>Formats the time gap as a string, using the specified format.
      * Padding the left hand side of numbers with zeroes is optional and
-     * the timezone may be specified. </p>
+     * the time zone may be specified. </p>
      *
      * <p>When calculating the difference between months/days, it chooses to
      * calculate months first. So when working out the number of months and
@@ -274,7 +271,7 @@ public class DurationFormatUtils {
      * @param padWithZeros  whether to pad the left hand side of numbers with 0's
      * @param timezone  the millis are defined in
      * @return the formatted duration, not null
-     * @throws java.lang.IllegalArgumentException if startMillis is greater than endMillis
+     * @throws IllegalArgumentException if startMillis is greater than endMillis
      */
     public static String formatPeriod(final long startMillis, final long endMillis, final String format, final boolean padWithZeros,
             final TimeZone timezone) {
@@ -289,7 +286,7 @@ public class DurationFormatUtils {
 
         final Token[] tokens = lexx(format);
 
-        // timezones get funky around 0, so normalizing everything to GMT
+        // time zones get funky around 0, so normalizing everything to GMT
         // stops the hours being off
         final Calendar start = Calendar.getInstance(timezone);
         start.setTime(new Date(startMillis));
@@ -344,7 +341,7 @@ public class DurationFormatUtils {
         } else {
             // there are no M's in the format string
 
-            if ( !Token.containsTokenWithValue(tokens, y) ) {
+            if (!Token.containsTokenWithValue(tokens, y)) {
                 int target = end.get(Calendar.YEAR);
                 if (months < 0) {
                     // target is end-year -1
@@ -369,7 +366,7 @@ public class DurationFormatUtils {
                 years = 0;
             }
 
-            while ( start.get(Calendar.MONTH) != end.get(Calendar.MONTH) ) {
+            while (start.get(Calendar.MONTH) != end.get(Calendar.MONTH)) {
                 days += start.getActualMaximum(Calendar.DAY_OF_MONTH);
                 start.add(Calendar.MONTH, 1);
             }
@@ -408,7 +405,6 @@ public class DurationFormatUtils {
         return format(tokens, years, months, days, hours, minutes, seconds, milliseconds, padWithZeros);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>The internal method to do the formatting.</p>
      *
@@ -432,35 +428,33 @@ public class DurationFormatUtils {
             final int count = token.getCount();
             if (value instanceof StringBuilder) {
                 buffer.append(value.toString());
-            } else {
-                if (value.equals(y)) {
-                    buffer.append(paddedValue(years, padWithZeros, count));
-                    lastOutputSeconds = false;
-                } else if (value.equals(M)) {
-                    buffer.append(paddedValue(months, padWithZeros, count));
-                    lastOutputSeconds = false;
-                } else if (value.equals(d)) {
-                    buffer.append(paddedValue(days, padWithZeros, count));
-                    lastOutputSeconds = false;
-                } else if (value.equals(H)) {
-                    buffer.append(paddedValue(hours, padWithZeros, count));
-                    lastOutputSeconds = false;
-                } else if (value.equals(m)) {
-                    buffer.append(paddedValue(minutes, padWithZeros, count));
-                    lastOutputSeconds = false;
-                } else if (value.equals(s)) {
-                    buffer.append(paddedValue(seconds, padWithZeros, count));
-                    lastOutputSeconds = true;
-                } else if (value.equals(S)) {
-                    if (lastOutputSeconds) {
-                        // ensure at least 3 digits are displayed even if padding is not selected
-                        final int width = padWithZeros ? Math.max(3, count) : 3;
-                        buffer.append(paddedValue(milliseconds, true, width));
-                    } else {
-                        buffer.append(paddedValue(milliseconds, padWithZeros, count));
-                    }
-                    lastOutputSeconds = false;
+            } else if (value.equals(y)) {
+                buffer.append(paddedValue(years, padWithZeros, count));
+                lastOutputSeconds = false;
+            } else if (value.equals(M)) {
+                buffer.append(paddedValue(months, padWithZeros, count));
+                lastOutputSeconds = false;
+            } else if (value.equals(d)) {
+                buffer.append(paddedValue(days, padWithZeros, count));
+                lastOutputSeconds = false;
+            } else if (value.equals(H)) {
+                buffer.append(paddedValue(hours, padWithZeros, count));
+                lastOutputSeconds = false;
+            } else if (value.equals(m)) {
+                buffer.append(paddedValue(minutes, padWithZeros, count));
+                lastOutputSeconds = false;
+            } else if (value.equals(s)) {
+                buffer.append(paddedValue(seconds, padWithZeros, count));
+                lastOutputSeconds = true;
+            } else if (value.equals(S)) {
+                if (lastOutputSeconds) {
+                    // ensure at least 3 digits are displayed even if padding is not selected
+                    final int width = padWithZeros ? Math.max(3, count) : 3;
+                    buffer.append(paddedValue(milliseconds, true, width));
+                } else {
+                    buffer.append(paddedValue(milliseconds, padWithZeros, count));
                 }
+                lastOutputSeconds = false;
             }
         }
         return buffer.toString();
@@ -480,13 +474,13 @@ public class DurationFormatUtils {
         return padWithZeros ? StringUtils.leftPad(longString, count, '0') : longString;
     }
 
-    static final Object y = "y";
-    static final Object M = "M";
-    static final Object d = "d";
-    static final Object H = "H";
-    static final Object m = "m";
-    static final Object s = "s";
-    static final Object S = "S";
+    static final String y = "y";
+    static final String M = "M";
+    static final String d = "d";
+    static final String H = "H";
+    static final String m = "m";
+    static final String s = "s";
+    static final String S = "S";
 
     /**
      * Parses a classic date format string into Tokens
@@ -508,7 +502,7 @@ public class DurationFormatUtils {
                 buffer.append(ch); // buffer can't be null if inLiteral is true
                 continue;
             }
-            Object value = null;
+            String value = null;
             switch (ch) {
             // TODO: Need to handle escaping of '
             case '\'':
@@ -564,14 +558,16 @@ public class DurationFormatUtils {
         if (inLiteral) { // i.e. we have not found the end of the literal
             throw new IllegalArgumentException("Unmatched quote in format: " + format);
         }
-        return list.toArray(new Token[0]);
+        return list.toArray(Token.EMPTY_ARRAY);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Element that is parsed from the format pattern.
      */
     static class Token {
+
+        /** Empty array. */
+        private static final Token[] EMPTY_ARRAY = {};
 
         /**
          * Helper method to determine if a set of tokens contain a value
@@ -657,11 +653,11 @@ public class DurationFormatUtils {
                 }
                 if (this.value instanceof StringBuilder) {
                     return this.value.toString().equals(tok2.value.toString());
-                } else if (this.value instanceof Number) {
-                    return this.value.equals(tok2.value);
-                } else {
-                    return this.value == tok2.value;
                 }
+                if (this.value instanceof Number) {
+                    return this.value.equals(tok2.value);
+                }
+                return this.value == tok2.value;
             }
             return false;
         }

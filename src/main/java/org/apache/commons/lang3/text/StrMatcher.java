@@ -18,6 +18,7 @@ package org.apache.commons.lang3.text;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.ArraySorter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -28,8 +29,8 @@ import org.apache.commons.lang3.StringUtils;
  * If these do not suffice, you can subclass and implement your own matcher.
  *
  * @since 2.2
- * @deprecated as of 3.6, use commons-text
- * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/StringMatcherFactory.html">
+ * @deprecated As of 3.6, use Apache Commons Text
+ * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/matcher/StringMatcherFactory.html">
  * StringMatcherFactory</a> instead
  */
 @Deprecated
@@ -72,8 +73,6 @@ public abstract class StrMatcher {
      * Matches no characters.
      */
     private static final StrMatcher NONE_MATCHER = new NoMatcher();
-
-    // -----------------------------------------------------------------------
 
     /**
      * Returns a matcher which matches the comma character.
@@ -212,12 +211,10 @@ public abstract class StrMatcher {
         return new StringMatcher(str);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Constructor.
      */
     protected StrMatcher() {
-        super();
     }
 
     /**
@@ -271,7 +268,6 @@ public abstract class StrMatcher {
         return isMatch(buffer, pos, 0, buffer.length);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Class used to define a set of characters for matching purposes.
      */
@@ -284,10 +280,8 @@ public abstract class StrMatcher {
          *
          * @param chars  the characters to match, must not be null
          */
-        CharSetMatcher(final char chars[]) {
-            super();
-            this.chars = chars.clone();
-            Arrays.sort(this.chars);
+        CharSetMatcher(final char[] chars) {
+            this.chars = ArraySorter.sort(chars.clone());
         }
 
         /**
@@ -305,7 +299,6 @@ public abstract class StrMatcher {
         }
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Class used to define a character for matching purposes.
      */
@@ -319,7 +312,6 @@ public abstract class StrMatcher {
          * @param ch  the character to match
          */
         CharMatcher(final char ch) {
-            super();
             this.ch = ch;
         }
 
@@ -338,7 +330,6 @@ public abstract class StrMatcher {
         }
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Class used to define a set of characters for matching purposes.
      */
@@ -352,7 +343,6 @@ public abstract class StrMatcher {
          * @param str  the string to match, must not be null
          */
         StringMatcher(final String str) {
-            super();
             chars = str.toCharArray();
         }
 
@@ -386,7 +376,6 @@ public abstract class StrMatcher {
 
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Class used to match no characters.
      */
@@ -396,7 +385,6 @@ public abstract class StrMatcher {
          * Constructs a new instance of {@code NoMatcher}.
          */
         NoMatcher() {
-            super();
         }
 
         /**
@@ -414,7 +402,6 @@ public abstract class StrMatcher {
         }
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Class used to match whitespace as per trim().
      */
@@ -424,7 +411,6 @@ public abstract class StrMatcher {
          * Constructs a new instance of {@code TrimMatcher}.
          */
         TrimMatcher() {
-            super();
         }
 
         /**

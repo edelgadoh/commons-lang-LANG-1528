@@ -22,11 +22,11 @@
   <parent>
     <groupId>org.apache.commons</groupId>
     <artifactId>commons-parent</artifactId>
-    <version>50</version>
+    <version>53</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>commons-lang3</artifactId>
-  <version>3.10-SNAPSHOT</version>
+  <version>3.13.0-SNAPSHOT</version>
   <name>Apache Commons Lang</name>
 
   <inceptionYear>2001</inceptionYear>
@@ -47,7 +47,7 @@
     <connection>scm:git:http://gitbox.apache.org/repos/asf/commons-lang.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-lang.git</developerConnection>
     <url>https://gitbox.apache.org/repos/asf?p=commons-lang.git</url>
-    <tag>commons-lang-3.9</tag>
+    <tag>commons-lang-3.12.0</tag>
   </scm>
 
   <developers>
@@ -99,13 +99,19 @@
       </roles>
     </developer>
     <developer>
-      <name>Gary D. Gregory</name>
       <id>ggregory</id>
-      <email>ggregory@apache.org</email>
-      <timezone>-5</timezone>
+      <name>Gary Gregory</name>
+      <email>ggregory at apache.org</email>
+      <url>https://www.garygregory.com</url>
+      <organization>The Apache Software Foundation</organization>
+      <organizationUrl>https://www.apache.org/</organizationUrl>      
       <roles>
-        <role>Java Developer</role>
+        <role>PMC Member</role>
       </roles>
+      <timezone>America/New_York</timezone>
+      <properties>
+        <picUrl>https://people.apache.org/~ggregory/img/garydgregory80.png</picUrl>
+      </properties>
     </developer>
     <developer>
       <name>Fredrik Westermarck</name>
@@ -508,7 +514,25 @@
     <contributor>
       <name>Peter Verhas</name>
     </contributor>
+    <contributor>
+      <name>Jin Xu</name>
+    </contributor>
+    <contributor>
+      <name>Arturo Bernal</name>
+    </contributor>
   </contributors>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.8.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <!-- Lang should depend on very little -->
   <dependencies>
@@ -516,13 +540,12 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.6.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit-pioneer</groupId>
       <artifactId>junit-pioneer</artifactId>
-      <version>0.5.4</version>
+      <version>1.7.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -535,8 +558,16 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>4.2</version>
+      <version>4.3</version>
       <scope>test</scope>
+    </dependency>
+
+    <!-- For Javadoc links -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.9</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -545,14 +576,18 @@
       <version>${jmh.version}</version>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-generator-annprocess</artifactId>
       <version>${jmh.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <distributionManagement>
@@ -584,7 +619,7 @@
     <commons.packageId>lang3</commons.packageId>
     <commons.module.name>org.apache.commons.lang3</commons.module.name>
     <!-- Current 3.x release series -->
-    <commons.release.version>3.10</commons.release.version>
+    <commons.release.version>3.13.0</commons.release.version>
     <commons.release.desc>(Java 8+)</commons.release.desc>
     <!-- Previous 2.x release series -->
     <commons.release.2.version>2.6</commons.release.2.version>
@@ -599,27 +634,31 @@
     <commons.scmPubCheckoutDirectory>site-content</commons.scmPubCheckoutDirectory>
     <commons.encoding>utf-8</commons.encoding>
 
-    <checkstyle.plugin.version>3.1.1</checkstyle.plugin.version>
-    <checkstyle.version>8.29</checkstyle.version>
+    <checkstyle.plugin.version>3.1.2</checkstyle.plugin.version>
+    <checkstyle.version>9.3</checkstyle.version>
     <checkstyle.configdir>src/site/resources/checkstyle</checkstyle.configdir>
 
-    <spotbugs.plugin.version>4.0.0</spotbugs.plugin.version>
+    <commons.spotbugs.plugin.version>4.7.0.0</commons.spotbugs.plugin.version>
+    <commons.spotbugs.impl.version>4.6.0</commons.spotbugs.impl.version>
     <japicmp.skip>false</japicmp.skip>
+    <clirr.skip>true</clirr.skip>
 
     <!-- JMH Benchmark related properties, version, target compiler and name of the benchmarking uber jar. -->
-    <jmh.version>1.21</jmh.version>
+    <jmh.version>1.35</jmh.version>
     <uberjar.name>benchmarks</uberjar.name>
 
-    <commons.jacoco.version>0.8.5</commons.jacoco.version>
-    <commons.surefire.version>3.0.0-M4</commons.surefire.version>
-    <commons.javadoc.version>3.1.1</commons.javadoc.version>
-
-    <!-- generate report even if there are binary incompatible changes -->
-    <commons.japicmp.breakBuildOnBinaryIncompatibleModifications>false</commons.japicmp.breakBuildOnBinaryIncompatibleModifications>
-    <commons.japicmp.version>0.14.3</commons.japicmp.version>
-
+    <commons.jacoco.version>0.8.8</commons.jacoco.version>
+    <commons.surefire.version>3.0.0-M6</commons.surefire.version>
+    <commons.javadoc.version>3.4.0</commons.javadoc.version>
+    <commons.japicmp.version>0.15.7</commons.japicmp.version>
+    <commons.pmd.version>3.16.0</commons.pmd.version>
+    <commons.pmd-impl.version>6.46.0</commons.pmd-impl.version>
+    <commons.felix.version>5.1.2</commons.felix.version>
+    <biz.aQute.bndlib.version>6.2.0</biz.aQute.bndlib.version>
+    <commons.animal-sniffer.version>1.21</commons.animal-sniffer.version>
+    
     <!-- Commons Release Plugin -->
-    <commons.bc.version>3.9</commons.bc.version>
+    <commons.bc.version>3.12.0</commons.bc.version>
     <commons.rc.version>RC1</commons.rc.version>
     <commons.release.isDistModule>true</commons.release.isDistModule>
     <commons.distSvnStagingUrl>scm:svn:https://dist.apache.org/repos/dist/dev/commons/lang</commons.distSvnStagingUrl>
@@ -627,11 +666,40 @@
     <commons.releaseManagerKey>86fdc7e2a11262cb</commons.releaseManagerKey>
   </properties>
 
-
   <build>
-   <defaultGoal>clean verify apache-rat:check clirr:check checkstyle:check spotbugs:check javadoc:javadoc</defaultGoal>
+   <defaultGoal>clean verify apache-rat:check checkstyle:check japicmp:cmp spotbugs:check javadoc:javadoc</defaultGoal>
    <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>${commons.pmd.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-core</artifactId>
+              <version>${commons.pmd-impl.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-java</artifactId>
+              <version>${commons.pmd-impl.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-javascript</artifactId>
+              <version>${commons.pmd-impl.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>net.sourceforge.pmd</groupId>
+              <artifactId>pmd-jsp</artifactId>
+              <version>${commons.pmd-impl.version}</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <targetJdk>${maven.compiler.target}</targetJdk>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.rat</groupId>
           <artifactId>apache-rat-plugin</artifactId>
@@ -645,50 +713,44 @@
             </excludes>
           </configuration>
         </plugin>
-        <!-- override skip property of parent pom -->
-        <plugin>
-          <groupId>com.github.siom79.japicmp</groupId>
-          <artifactId>japicmp-maven-plugin</artifactId>
-          <configuration>
-            <skip>false</skip>
-          </configuration>
-        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <quiet>true</quiet>
-          <encoding>utf-8</encoding>
-          <docEncoding>utf-8</docEncoding>
-          <notimestamp>true</notimestamp>
-          <links>
-            <link>https://docs.oracle.com/javase/8/docs/api/</link>
-            <link>http://docs.oracle.com/javaee/6/api/</link>
-          </links>
-          <archive>
-            <manifest>
-              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-            </manifest>
-          </archive>
-        </configuration>
-        <executions>
-          <execution>
-            <id>create-javadoc-jar</id>
-            <goals>
-              <goal>javadoc</goal>
-              <goal>jar</goal>
-            </goals>
-            <phase>package</phase>
-          </execution>
-        </executions>
-      </plugin>
+          <configuration>
+            <source>${maven.compiler.source}</source>
+            <quiet>true</quiet>
+            <notimestamp>true</notimestamp>
+            <links>
+              <link>https://commons.apache.org/proper/commons-text/apidocs</link>
+              <link>https://docs.oracle.com/javase/8/docs/api</link>
+              <link>https://docs.oracle.com/javaee/6/api</link>
+            </links>
+            <validateLinks>true</validateLinks>
+            <archive>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              </manifest>
+            </archive>
+            <doclint>all</doclint>
+          </configuration>
+          <executions>
+            <execution>
+              <id>create-javadoc-jar</id>
+              <goals>
+                <goal>javadoc</goal>
+                <goal>jar</goal>
+              </goals>
+              <phase>package</phase>
+            </execution>
+          </executions>
+        </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${commons.surefire.version}</version>
         <executions>
           <execution>
             <id>plain</id>
@@ -760,24 +822,44 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${spotbugs.plugin.version}</version>
+        <version>${commons.spotbugs.plugin.version}</version>
         <dependencies>
           <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.0.0</version>
+            <version>${commons.spotbugs.impl.version}</version>
          </dependency>
         </dependencies>        
         <configuration>
-          <excludeFilterFile>${basedir}/spotbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${basedir}/src/conf/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
     </plugins>
-
   </build>
 
   <reporting>
     <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <quiet>true</quiet>
+          <notimestamp>true</notimestamp>
+          <links>
+            <link>https://commons.apache.org/proper/commons-text/apidocs</link>
+            <link>https://docs.oracle.com/javase/8/docs/api</link>
+            <link>https://docs.oracle.com/javaee/6/api</link>
+          </links>
+          <validateLinks>true</validateLinks>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+          </archive>
+          <doclint>all</doclint>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>${checkstyle.plugin.version}</version>
@@ -798,22 +880,19 @@
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>${spotbugs.plugin.version}</version>
+        <version>${commons.spotbugs.plugin.version}</version>
         <configuration>
-          <excludeFilterFile>${basedir}/spotbugs-exclude-filter.xml</excludeFilterFile>
+          <excludeFilterFile>${basedir}/src/conf/spotbugs-exclude-filter.xml</excludeFilterFile>
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <targetJdk>${maven.compiler.target}</targetJdk>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.0.0</version>
         <configuration>
           <tagListOptions>
             <tagClasses>
@@ -910,7 +989,8 @@
       </activation>
       <properties>
         <!-- LANG-1265: allow tests to access private fields/methods of java.base classes via reflection -->
-        <argLine>-Xmx512m --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+        <!-- LANG-1667: allow tests to access private fields/methods of java.base/java.util such as ArrayList via reflection -->
+        <argLine>-Xmx512m --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</argLine>
         <!-- coverall version 4.3.0 does not work with java 9, see https://github.com/trautonen/coveralls-maven-plugin/issues/112 -->
         <coveralls.skip>true</coveralls.skip>
       </properties>
@@ -925,6 +1005,26 @@
         <jacoco.skip>true</jacoco.skip>
       </properties>
     </profile>
+    <profile>
+      <id>java15</id>
+      <activation>
+        <!-- This is ONLY activated for Java 15 -->
+        <jdk>15</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>org/apache/commons/lang3/time/Java15BugFastDateParserTest.java</exclude>               
+              </excludes>
+            </configuration>
+          </plugin>        
+        </plugins>
+      </build>
+    </profile>
 
     <profile>
       <id>benchmark</id>
@@ -937,7 +1037,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>1.6.0</version>
+            <version>3.0.0</version>
             <executions>
               <execution>
                 <id>benchmark</id>

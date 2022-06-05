@@ -48,7 +48,7 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
 
     private static final String DIFFERS_STRING = "differs from";
 
-    private final List<Diff<?>> diffs;
+    private final List<Diff<?>> diffList;
     private final T lhs;
     private final T rhs;
     private final ToStringStyle style;
@@ -63,22 +63,21 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
      *            the left hand object
      * @param rhs
      *            the right hand object
-     * @param diffs
+     * @param diffList
      *            the list of differences, may be empty
      * @param style
      *            the style to use for the {@link #toString()} method. May be
      *            {@code null}, in which case
      *            {@link ToStringStyle#DEFAULT_STYLE} is used
-     * @throws IllegalArgumentException
-     *             if {@code lhs}, {@code rhs} or {@code diffs} is {@code null}
+     * @throws NullPointerException if {@code lhs}, {@code rhs} or {@code diffs} is {@code null}
      */
-    DiffResult(final T lhs, final T rhs, final List<Diff<?>> diffs,
+    DiffResult(final T lhs, final T rhs, final List<Diff<?>> diffList,
             final ToStringStyle style) {
-        Validate.notNull(lhs, "Left hand object cannot be null");
-        Validate.notNull(rhs, "Right hand object cannot be null");
-        Validate.notNull(diffs, "List of differences cannot be null");
+        Validate.notNull(lhs, "lhs");
+        Validate.notNull(rhs, "rhs");
+        Validate.notNull(diffList, "diffList");
 
-        this.diffs = diffs;
+        this.diffList = diffList;
         this.lhs = lhs;
         this.rhs = rhs;
 
@@ -118,7 +117,7 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
      * @return an unmodifiable list of {@code Diff}s
      */
     public List<Diff<?>> getDiffs() {
-        return Collections.unmodifiableList(diffs);
+        return Collections.unmodifiableList(diffList);
     }
 
     /**
@@ -129,7 +128,7 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
      * @return the number of differences
      */
     public int getNumberOfDiffs() {
-        return diffs.size();
+        return diffList.size();
     }
 
     /**
@@ -191,14 +190,14 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
      * @return a {@code String} description of the differences.
      */
     public String toString(final ToStringStyle style) {
-        if (diffs.isEmpty()) {
+        if (diffList.isEmpty()) {
             return OBJECTS_SAME_STRING;
         }
 
         final ToStringBuilder lhsBuilder = new ToStringBuilder(lhs, style);
         final ToStringBuilder rhsBuilder = new ToStringBuilder(rhs, style);
 
-        for (final Diff<?> diff : diffs) {
+        for (final Diff<?> diff : diffList) {
             lhsBuilder.append(diff.getFieldName(), diff.getLeft());
             rhsBuilder.append(diff.getFieldName(), diff.getRight());
         }
@@ -216,6 +215,6 @@ public class DiffResult<T> implements Iterable<Diff<?>> {
      */
     @Override
     public Iterator<Diff<?>> iterator() {
-        return diffs.iterator();
+        return diffList.iterator();
     }
 }
