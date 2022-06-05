@@ -41,7 +41,6 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
      * Constructs a new MutableObject with the default value of {@code null}.
      */
     public MutableObject() {
-        super();
     }
 
     /**
@@ -50,11 +49,9 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
      * @param value  the initial value to store
      */
     public MutableObject(final T value) {
-        super();
         this.value = value;
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Gets the value.
      *
@@ -75,7 +72,6 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
         this.value = value;
     }
 
-    //-----------------------------------------------------------------------
     /**
      * <p>
      * Compares this object against the specified object. The result is {@code true} if and only if the argument
@@ -113,7 +109,6 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
         return value == null ? 0 : value.hashCode();
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Returns the String value of this mutable.
      *

@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.commons.lang3.time;
+package org.apache.commons.lang3.concurrent;
 
-import java.util.Locale;
-import java.util.TimeZone;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import org.junit.jupiter.api.Test;
 
 /**
- * Unit tests for the parse methods of FastDateFormat
- *
- * @since 3.2
+ * Tests {@link UncheckedExecutionException}.
  */
-public class FastDateFormat_ParserTest extends FastDateParserTest {
+public class UncheckedExecutionExceptionTest {
 
-    @Override
-    protected DateParser getInstance(final String format, final TimeZone timeZone, final Locale locale) {
-        return FastDateFormat.getInstance(format, timeZone, locale);
+    @Test
+    public void testConstructWithCause() {
+        final Exception e = new Exception();
+        assertSame(e, new UncheckedExecutionException(e).getCause());
     }
+
 }

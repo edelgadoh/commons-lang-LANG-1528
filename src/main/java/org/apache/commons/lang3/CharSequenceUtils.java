@@ -27,37 +27,50 @@ public class CharSequenceUtils {
 
     private static final int NOT_FOUND = -1;
 
-    /**
-     * <p>{@code CharSequenceUtils} instances should NOT be constructed in
-     * standard programming. </p>
-     *
-     * <p>This constructor is public to permit tools that require a JavaBean
-     * instance to operate.</p>
-     */
-    public CharSequenceUtils() {
-        super();
+    static final int TO_STRING_LIMIT = 16;
+
+    private static boolean checkLaterThan1(final CharSequence cs, final CharSequence searchChar, final int len2, final int start1) {
+        for (int i = 1, j = len2 - 1; i <= j; i++, j--) {
+            if (cs.charAt(start1 + i) != searchChar.charAt(i)
+                    ||
+                    cs.charAt(start1 + j) != searchChar.charAt(j)
+            ) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    //-----------------------------------------------------------------------
     /**
-     * <p>Returns a new {@code CharSequence} that is a subsequence of this
-     * sequence starting with the {@code char} value at the specified index.</p>
+     * Used by the indexOf(CharSequence methods) as a green implementation of indexOf.
      *
-     * <p>This provides the {@code CharSequence} equivalent to {@link String#substring(int)}.
-     * The length (in {@code char}) of the returned sequence is {@code length() - start},
-     * so if {@code start == end} then an empty sequence is returned.</p>
-     *
-     * @param cs  the specified subsequence, null returns null
-     * @param start  the start index, inclusive, valid
-     * @return a new subsequence, may be null
-     * @throws IndexOutOfBoundsException if {@code start} is negative or if
-     *  {@code start} is greater than {@code length()}
+     * @param cs the {@code CharSequence} to be processed
+     * @param searchChar the {@code CharSequence} to be searched for
+     * @param start the start index
+     * @return the index where the search sequence was found
      */
-    public static CharSequence subSequence(final CharSequence cs, final int start) {
-        return cs == null ? null : cs.subSequence(start, cs.length());
+    static int indexOf(final CharSequence cs, final CharSequence searchChar, final int start) {
+        if (cs instanceof String) {
+            return ((String) cs).indexOf(searchChar.toString(), start);
+        }
+        if (cs instanceof StringBuilder) {
+            return ((StringBuilder) cs).indexOf(searchChar.toString(), start);
+        }
+        if (cs instanceof StringBuffer) {
+            return ((StringBuffer) cs).indexOf(searchChar.toString(), start);
+        }
+        return cs.toString().indexOf(searchChar.toString(), start);
+//        if (cs instanceof String && searchChar instanceof String) {
+//            // TODO: Do we assume searchChar is usually relatively small;
+//            //       If so then calling toString() on it is better than reverting to
+//            //       the green implementation in the else block
+//            return ((String) cs).indexOf((String) searchChar, start);
+//        } else {
+//            // TODO: Implement rather than convert to String
+//            return cs.toString().indexOf(searchChar.toString(), start);
+//        }
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Returns the index within {@code cs} of the first occurrence of the
      * specified character, starting the search at the specified index.
@@ -110,6 +123,7 @@ public class CharSequenceUtils {
                     return i;
                 }
             }
+            return NOT_FOUND;
         }
         //supplementary characters (LANG1300)
         if (searchChar <= Character.MAX_CODE_POINT) {
@@ -126,24 +140,78 @@ public class CharSequenceUtils {
     }
 
     /**
-     * Used by the indexOf(CharSequence methods) as a green implementation of indexOf.
+     * Used by the lastIndexOf(CharSequence methods) as a green implementation of lastIndexOf
      *
      * @param cs the {@code CharSequence} to be processed
-     * @param searchChar the {@code CharSequence} to be searched for
+     * @param searchChar the {@code CharSequence} to find
      * @param start the start index
      * @return the index where the search sequence was found
      */
-    static int indexOf(final CharSequence cs, final CharSequence searchChar, final int start) {
-        return cs.toString().indexOf(searchChar.toString(), start);
-//        if (cs instanceof String && searchChar instanceof String) {
-//            // TODO: Do we assume searchChar is usually relatively small;
-//            //       If so then calling toString() on it is better than reverting to
-//            //       the green implementation in the else block
-//            return ((String) cs).indexOf((String) searchChar, start);
-//        } else {
-//            // TODO: Implement rather than convert to String
-//            return cs.toString().indexOf(searchChar.toString(), start);
-//        }
+    static int lastIndexOf(final CharSequence cs, final CharSequence searchChar, int start) {
+        if (searchChar == null || cs == null) {
+            return NOT_FOUND;
+        }
+        if (searchChar instanceof String) {
+            if (cs instanceof String) {
+                return ((String) cs).lastIndexOf((String) searchChar, start);
+            }
+            if (cs instanceof StringBuilder) {
+                return ((StringBuilder) cs).lastIndexOf((String) searchChar, start);
+            }
+            if (cs instanceof StringBuffer) {
+                return ((StringBuffer) cs).lastIndexOf((String) searchChar, start);
+            }
+        }
+
+        final int len1 = cs.length();
+        final int len2 = searchChar.length();
+
+        if (start > len1) {
+            start = len1;
+        }
+
+        if (start < 0 || len2 < 0 || len2 > len1) {
+            return NOT_FOUND;
+        }
+
+        if (len2 == 0) {
+            return start;
+        }
+
+        if (len2 <= TO_STRING_LIMIT) {
+            if (cs instanceof String) {
+                return ((String) cs).lastIndexOf(searchChar.toString(), start);
+            }
+            if (cs instanceof StringBuilder) {
+                return ((StringBuilder) cs).lastIndexOf(searchChar.toString(), start);
+            }
+            if (cs instanceof StringBuffer) {
+                return ((StringBuffer) cs).lastIndexOf(searchChar.toString(), start);
+            }
+        }
+
+        if (start + len2 > len1) {
+            start = len1 - len2;
+        }
+
+        final char char0 = searchChar.charAt(0);
+
+        int i = start;
+        while (true) {
+            while (cs.charAt(i) != char0) {
+                i--;
+                if (i < 0) {
+                    return NOT_FOUND;
+                }
+            }
+            if (checkLaterThan1(cs, searchChar, len2, i)) {
+                return i;
+            }
+            i--;
+            if (i < 0) {
+                return NOT_FOUND;
+            }
+        }
     }
 
     /**
@@ -189,6 +257,7 @@ public class CharSequenceUtils {
                     return i;
                 }
             }
+            return NOT_FOUND;
         }
         //supplementary characters (LANG1300)
         //NOTE - we must do a forward traversal for this to avoid duplicating code points
@@ -207,45 +276,6 @@ public class CharSequenceUtils {
             }
         }
         return NOT_FOUND;
-    }
-
-    /**
-     * Used by the lastIndexOf(CharSequence methods) as a green implementation of lastIndexOf
-     *
-     * @param cs the {@code CharSequence} to be processed
-     * @param searchChar the {@code CharSequence} to be searched for
-     * @param start the start index
-     * @return the index where the search sequence was found
-     */
-    static int lastIndexOf(final CharSequence cs, final CharSequence searchChar, final int start) {
-        return cs.toString().lastIndexOf(searchChar.toString(), start);
-//        if (cs instanceof String && searchChar instanceof String) {
-//            // TODO: Do we assume searchChar is usually relatively small;
-//            //       If so then calling toString() on it is better than reverting to
-//            //       the green implementation in the else block
-//            return ((String) cs).lastIndexOf((String) searchChar, start);
-//        } else {
-//            // TODO: Implement rather than convert to String
-//            return cs.toString().lastIndexOf(searchChar.toString(), start);
-//        }
-    }
-
-    /**
-     * Green implementation of toCharArray.
-     *
-     * @param cs the {@code CharSequence} to be processed
-     * @return the resulting char array
-     */
-    static char[] toCharArray(final CharSequence cs) {
-        if (cs instanceof String) {
-            return ((String) cs).toCharArray();
-        }
-        final int sz = cs.length();
-        final char[] array = new char[cs.length()];
-        for (int i = 0; i < sz; i++) {
-            array[i] = cs.charAt(i);
-        }
-        return array;
     }
 
     /**
@@ -294,13 +324,64 @@ public class CharSequenceUtils {
                 return false;
             }
 
-            // The same check as in String.regionMatches():
-            if (Character.toUpperCase(c1) != Character.toUpperCase(c2)
-                    && Character.toLowerCase(c1) != Character.toLowerCase(c2)) {
+            // The real same check as in String.regionMatches():
+            final char u1 = Character.toUpperCase(c1);
+            final char u2 = Character.toUpperCase(c2);
+            if (u1 != u2 && Character.toLowerCase(u1) != Character.toLowerCase(u2)) {
                 return false;
             }
         }
 
         return true;
+    }
+
+    /**
+     * <p>Returns a new {@code CharSequence} that is a subsequence of this
+     * sequence starting with the {@code char} value at the specified index.</p>
+     *
+     * <p>This provides the {@code CharSequence} equivalent to {@link String#substring(int)}.
+     * The length (in {@code char}) of the returned sequence is {@code length() - start},
+     * so if {@code start == end} then an empty sequence is returned.</p>
+     *
+     * @param cs  the specified subsequence, null returns null
+     * @param start  the start index, inclusive, valid
+     * @return a new subsequence, may be null
+     * @throws IndexOutOfBoundsException if {@code start} is negative or if
+     *  {@code start} is greater than {@code length()}
+     */
+    public static CharSequence subSequence(final CharSequence cs, final int start) {
+        return cs == null ? null : cs.subSequence(start, cs.length());
+    }
+
+    /**
+     * Converts the given CharSequence to a char[].
+     *
+     * @param source the {@code CharSequence} to be processed.
+     * @return the resulting char array, never null.
+     * @since 3.11
+     */
+    public static char[] toCharArray(final CharSequence source) {
+        final int len = StringUtils.length(source);
+        if (len == 0) {
+            return ArrayUtils.EMPTY_CHAR_ARRAY;
+        }
+        if (source instanceof String) {
+            return ((String) source).toCharArray();
+        }
+        final char[] array = new char[len];
+        for (int i = 0; i < len; i++) {
+            array[i] = source.charAt(i);
+        }
+        return array;
+    }
+
+    /**
+     * <p>{@code CharSequenceUtils} instances should NOT be constructed in
+     * standard programming. </p>
+     *
+     * <p>This constructor is public to permit tools that require a JavaBean
+     * instance to operate.</p>
+     */
+    public CharSequenceUtils() {
     }
 }

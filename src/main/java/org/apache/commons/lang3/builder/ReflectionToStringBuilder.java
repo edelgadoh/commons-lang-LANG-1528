@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang3.ArraySorter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.Validate;
@@ -434,18 +435,18 @@ public class ReflectionToStringBuilder extends ToStringBuilder {
     }
 
     private static Object checkNotNull(final Object obj) {
-        return Validate.notNull(obj, "The Object passed in should not be null.");
+        return Validate.notNull(obj, "obj");
     }
 
     /**
      * Whether or not to append static fields.
      */
-    private boolean appendStatics = false;
+    private boolean appendStatics;
 
     /**
      * Whether or not to append transient fields.
      */
-    private boolean appendTransients = false;
+    private boolean appendTransients;
 
     /**
      * Whether or not to append fields that are null.
@@ -462,7 +463,7 @@ public class ReflectionToStringBuilder extends ToStringBuilder {
     /**
      * The last super class to stop appending fields for.
      */
-    private Class<?> upToClass = null;
+    private Class<?> upToClass;
 
     /**
      * <p>
@@ -640,8 +641,7 @@ public class ReflectionToStringBuilder extends ToStringBuilder {
             return;
         }
         // The elements in the returned array are not sorted and are not in any particular order.
-        final Field[] fields = clazz.getDeclaredFields();
-        Arrays.sort(fields, Comparator.comparing(Field::getName));
+        final Field[] fields = ArraySorter.sort(clazz.getDeclaredFields(), Comparator.comparing(Field::getName));
         AccessibleObject.setAccessible(fields, true);
         for (final Field field : fields) {
             final String fieldName = field.getName();
@@ -801,8 +801,7 @@ public class ReflectionToStringBuilder extends ToStringBuilder {
             this.excludeFieldNames = null;
         } else {
             //clone and remove nulls
-            this.excludeFieldNames = toNoNullStringArray(excludeFieldNamesParam);
-            Arrays.sort(this.excludeFieldNames);
+            this.excludeFieldNames = ArraySorter.sort(toNoNullStringArray(excludeFieldNamesParam));
         }
         return this;
     }

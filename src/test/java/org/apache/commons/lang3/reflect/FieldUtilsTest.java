@@ -16,10 +16,29 @@
  */
 package org.apache.commons.lang3.reflect;
 
-import org.apache.commons.lang3.ArrayUtils;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+import org.apache.commons.lang3.ArraySorter;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.compare.ObjectToStringComparator;
 import org.apache.commons.lang3.reflect.testbed.Ambig;
 import org.apache.commons.lang3.reflect.testbed.Annotated;
 import org.apache.commons.lang3.reflect.testbed.Foo;
@@ -30,24 +49,6 @@ import org.apache.commons.lang3.reflect.testbed.StaticContainer;
 import org.apache.commons.lang3.reflect.testbed.StaticContainerChild;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * Unit tests FieldUtils
@@ -166,10 +167,10 @@ public class FieldUtilsTest {
     @Test
     public void testGetAllFields() {
         assertArrayEquals(new Field[0], FieldUtils.getAllFields(Object.class));
-        final Field[] fieldsNumber = Number.class.getDeclaredFields();
-        assertArrayEquals(fieldsNumber, FieldUtils.getAllFields(Number.class));
+        final Field[] fieldsNumber = sort(Number.class.getDeclaredFields());
+        assertArrayEquals(fieldsNumber, sort(FieldUtils.getAllFields(Number.class)));
         final Field[] fieldsInteger = Integer.class.getDeclaredFields();
-        assertArrayEquals(ArrayUtils.addAll(fieldsInteger, fieldsNumber), FieldUtils.getAllFields(Integer.class));
+        assertArrayEquals(sort(ArrayUtils.addAll(fieldsInteger, fieldsNumber)), sort(FieldUtils.getAllFields(Integer.class)));
         final Field[] allFields = FieldUtils.getAllFields(PublicChild.class);
         // Under Jacoco,0.8.1 and Java 10, the field count is 7.
         int expected = 5;
@@ -181,6 +182,11 @@ public class FieldUtilsTest {
         assertEquals(expected, allFields.length, Arrays.toString(allFields));
     }
 
+    private Field[] sort(final Field[] fields) {
+        // Field does not implement Comparable, so we use a KISS solution here.
+        return ArraySorter.sort(fields, ObjectToStringComparator.INSTANCE);
+    }
+
     @Test
     public void testGetAllFieldsList() {
         assertEquals(0, FieldUtils.getAllFieldsList(Object.class).size());
@@ -189,7 +195,7 @@ public class FieldUtilsTest {
         final List<Field> fieldsInteger = Arrays.asList(Integer.class.getDeclaredFields());
         final List<Field> allFieldsInteger = new ArrayList<>(fieldsInteger);
         allFieldsInteger.addAll(fieldsNumber);
-        assertEquals(new HashSet(allFieldsInteger), new HashSet(FieldUtils.getAllFieldsList(Integer.class)));
+        assertEquals(new HashSet<>(allFieldsInteger), new HashSet<>(FieldUtils.getAllFieldsList(Integer.class)));
         final List<Field> allFields = FieldUtils.getAllFieldsList(PublicChild.class);
         // Under Jacoco,0.8.1 and Java 10, the field count is 7.
         int expected = 5;
@@ -205,11 +211,11 @@ public class FieldUtilsTest {
     @Test
     public void testGetFieldsWithAnnotation() throws NoSuchFieldException {
         assertArrayEquals(new Field[0], FieldUtils.getFieldsWithAnnotation(Object.class, Annotated.class));
-        final Field[] annotatedFields = new Field[]{
+        final Field[] annotatedFields = sort(new Field[] {
                 FieldUtilsTest.class.getDeclaredField("publicChild"),
-                FieldUtilsTest.class.getDeclaredField("privatelyShadowedChild")
-        };
-        assertArrayEquals(annotatedFields, FieldUtils.getFieldsWithAnnotation(FieldUtilsTest.class, Annotated.class));
+                FieldUtilsTest.class.getDeclaredField("privatelyShadowedChild") });
+        assertArrayEquals(annotatedFields,
+                sort(FieldUtils.getFieldsWithAnnotation(FieldUtilsTest.class, Annotated.class)));
     }
 
     @Test

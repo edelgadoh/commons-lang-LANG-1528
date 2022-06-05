@@ -52,8 +52,6 @@ public class HashCodeBuilderTest {
         }
     }
 
-    // -----------------------------------------------------------------------
-
     @Test
     public void testConstructorExZero() {
         assertThrows(IllegalArgumentException.class, () -> new HashCodeBuilder(0, 0));
@@ -207,7 +205,6 @@ public class HashCodeBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("cast") // cast is not really needed, keep for consistency
     public void testLong() {
         assertEquals(17 * 37, new HashCodeBuilder(17, 37).append(0L).toHashCode());
         assertEquals(17 * 37 + (int) (123456789L ^ 123456789L >> 32), new HashCodeBuilder(17, 37).append(
@@ -215,7 +212,6 @@ public class HashCodeBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("cast") // cast is not really needed, keep for consistency
     public void testInt() {
         assertEquals(17 * 37, new HashCodeBuilder(17, 37).append(0).toHashCode());
         assertEquals(17 * 37 + 123456, new HashCodeBuilder(17, 37).append(123456).toHashCode());
@@ -240,7 +236,6 @@ public class HashCodeBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("cast") // cast is not really needed, keep for consistency
     public void testDouble() {
         assertEquals(17 * 37, new HashCodeBuilder(17, 37).append(0d).toHashCode());
         final double d = 1234567.89;
@@ -249,7 +244,6 @@ public class HashCodeBuilderTest {
     }
 
     @Test
-    @SuppressWarnings("cast") // cast is not really needed, keep for consistency
     public void testFloat() {
         assertEquals(17 * 37, new HashCodeBuilder(17, 37).append(0f).toHashCode());
         final float f = 1234.89f;

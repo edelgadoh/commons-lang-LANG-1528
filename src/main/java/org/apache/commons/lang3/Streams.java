@@ -16,7 +16,6 @@
  */
 package org.apache.commons.lang3;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +42,7 @@ import org.apache.commons.lang3.Functions.FailablePredicate;
  * not to throw Exceptions, at least not checked Exceptions, AKA instances
  * of {@link Exception}. This enforces the use of constructs like
  * <pre>
- *     Consumer&lt;java.lang.reflect.Method&gt; consumer = (m) -&gt; {
+ *     Consumer&lt;java.lang.reflect.Method&gt; consumer = m -&gt; {
  *         try {
  *             m.invoke(o, args);
  *         } catch (Throwable t) {
@@ -62,14 +61,18 @@ import org.apache.commons.lang3.Functions.FailablePredicate;
  * @see Stream
  * @see Functions
  * @since 3.10
+ * @deprecated Use {@link org.apache.commons.lang3.stream.Streams}.
  */
+@Deprecated
 public class Streams {
 
-   /**
-    * A reduced, and simplified version of a {@link Stream} with
-    * failable method signatures.
-    * @param <O> The streams element type.
-    */
+    /**
+     * A reduced, and simplified version of a {@link Stream} with
+     * failable method signatures.
+     * @param <O> The streams element type.
+     * @deprecated Use {@link org.apache.commons.lang3.stream.Streams.FailableStream}.
+     */
+    @Deprecated
     public static class FailableStream<O extends Object> {
 
         private Stream<O> stream;
@@ -83,12 +86,22 @@ public class Streams {
             this.stream = stream;
         }
 
+        /**
+         * Throws IllegalStateException if this stream is already terminated.
+         *
+         * @throws IllegalStateException if this stream is already terminated.
+         */
         protected void assertNotTerminated() {
             if (terminated) {
                 throw new IllegalStateException("This stream is already terminated.");
             }
         }
 
+        /**
+         * Marks this stream as terminated.
+         *
+         * @throws IllegalStateException if this stream is already terminated.
+         */
         protected void makeTerminated() {
             assertNotTerminated();
             terminated = true;
@@ -98,7 +111,9 @@ public class Streams {
          * Returns a FailableStream consisting of the elements of this stream that match
          * the given FailablePredicate.
          *
-         * <p>This is an intermediate operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
          * @param predicate a non-interfering, stateless predicate to apply to each
          * element to determine if it should be included.
@@ -113,15 +128,19 @@ public class Streams {
         /**
          * Performs an action for each element of this stream.
          *
-         * <p>This is a terminal operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
-         * <p>The behavior of this operation is explicitly nondeterministic.
+         * <p>
+         * The behavior of this operation is explicitly nondeterministic.
          * For parallel stream pipelines, this operation does <em>not</em>
          * guarantee to respect the encounter order of the stream, as doing so
          * would sacrifice the benefit of parallelism.  For any given element, the
          * action may be performed at whatever time and in whatever thread the
          * library chooses.  If the action accesses shared state, it is
          * responsible for providing the required synchronization.
+         * </p>
          *
          * @param action a non-interfering action to perform on the elements
          */
@@ -138,33 +157,44 @@ public class Streams {
          * collection strategies and composition of collect operations such as
          * multiple-level grouping or partitioning.
          *
-         * <p>If the underlying stream is parallel, and the {@code Collector}
+         * <p>
+         * If the underlying stream is parallel, and the {@code Collector}
          * is concurrent, and either the stream is unordered or the collector is
          * unordered, then a concurrent reduction will be performed
          * (see {@link Collector} for details on concurrent reduction.)
+         * </p>
          *
-         * <p>This is a terminal operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
-         * <p>When executed in parallel, multiple intermediate results may be
+         * <p>
+         * When executed in parallel, multiple intermediate results may be
          * instantiated, populated, and merged so as to maintain isolation of
          * mutable data structures.  Therefore, even when executed in parallel
          * with non-thread-safe data structures (such as {@code ArrayList}), no
          * additional synchronization is needed for a parallel reduction.
-         *
-         * \@apiNote
+         * </p>
+         * <p>
+         * Note
          * The following will accumulate strings into an ArrayList:
+         * </p>
          * <pre>{@code
          *     List<String> asList = stringStream.collect(Collectors.toList());
          * }</pre>
          *
-         * <p>The following will classify {@code Person} objects by city:
+         * <p>
+         * The following will classify {@code Person} objects by city:
+         * </p>
          * <pre>{@code
          *     Map<String, List<Person>> peopleByCity
          *         = personStream.collect(Collectors.groupingBy(Person::getCity));
          * }</pre>
          *
-         * <p>The following will classify {@code Person} objects by state and city,
+         * <p>
+         * The following will classify {@code Person} objects by state and city,
          * cascading two {@code Collector}s together:
+         * </p>
          * <pre>{@code
          *     Map<String, Map<String, List<Person>>> peopleByStateAndCity
          *         = personStream.collect(Collectors.groupingBy(Person::getState,
@@ -195,21 +225,29 @@ public class Streams {
          *     return result;
          * }</pre>
          *
-         * <p>Like {@link #reduce(Object, BinaryOperator)}, {@code collect} operations
+         * <p>
+         * Like {@link #reduce(Object, BinaryOperator)}, {@code collect} operations
          * can be parallelized without requiring additional synchronization.
+         * </p>
          *
-         * <p>This is a terminal operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
-         * \@apiNote There are many existing classes in the JDK whose signatures are
+         * <p>
+         * Note There are many existing classes in the JDK whose signatures are
          * well-suited for use with method references as arguments to {@code collect()}.
          * For example, the following will accumulate strings into an {@code ArrayList}:
+         * </p>
          * <pre>{@code
          *     List<String> asList = stringStream.collect(ArrayList::new, ArrayList::add,
          *                                                ArrayList::addAll);
          * }</pre>
          *
-         * <p>The following will take a stream of strings and concatenates them into a
+         * <p>
+         * The following will take a stream of strings and concatenates them into a
          * single string:
+         * </p>
          * <pre>{@code
          *     String concat = stringStream.collect(StringBuilder::new, StringBuilder::append,
          *                                          StringBuilder::append)
@@ -218,7 +256,7 @@ public class Streams {
          *
          * @param <R> type of the result
          * @param <A> Type of the accumulator.
-         * @param pupplier a function that creates a new result container. For a
+         * @param supplier a function that creates a new result container. For a
          *                 parallel execution, this function may be called
          *                 multiple times and must return a fresh value each time.
          * @param accumulator An associative, non-interfering, stateless function for
@@ -228,9 +266,9 @@ public class Streams {
          *   accumulator function
          * @return The result of the reduction
          */
-        public <A, R> R collect(final Supplier<R> pupplier, final BiConsumer<R, ? super O> accumulator, final BiConsumer<R, R> combiner) {
+        public <A, R> R collect(final Supplier<R> supplier, final BiConsumer<R, ? super O> accumulator, final BiConsumer<R, R> combiner) {
             makeTerminated();
-            return stream().collect(pupplier, accumulator, combiner);
+            return stream().collect(supplier, accumulator, combiner);
         }
 
         /**
@@ -246,14 +284,18 @@ public class Streams {
          *
          * but is not constrained to execute sequentially.
          *
-         * <p>The {@code identity} value must be an identity for the accumulator
+         * <p>
+         * The {@code identity} value must be an identity for the accumulator
          * function. This means that for all {@code t},
          * {@code accumulator.apply(identity, t)} is equal to {@code t}.
          * The {@code accumulator} function must be an associative function.
+         * </p>
          *
-         * <p>This is a terminal operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
-         * \@apiNote Sum, min, max, average, and string concatenation are all special
+         * Note Sum, min, max, average, and string concatenation are all special
          * cases of reduction. Summing a stream of numbers can be expressed as:
          *
          * <pre>{@code
@@ -266,10 +308,12 @@ public class Streams {
          *     Integer sum = integers.reduce(0, Integer::sum);
          * }</pre>
          *
-         * <p>While this may seem a more roundabout way to perform an aggregation
+         * <p>
+         * While this may seem a more roundabout way to perform an aggregation
          * compared to simply mutating a running total in a loop, reduction
          * operations parallelize more gracefully, without needing additional
          * synchronization and with greatly reduced risk of data races.
+         * </p>
          *
          * @param identity the identity value for the accumulating function
          * @param accumulator an associative, non-interfering, stateless
@@ -285,7 +329,9 @@ public class Streams {
          * Returns a stream consisting of the results of applying the given
          * function to the elements of this stream.
          *
-         * <p>This is an intermediate operation.
+         * <p>
+         * This is an intermediate operation.
+         * </p>
          *
          * @param <R> The element type of the new stream
          * @param mapper A non-interfering, stateless function to apply to each element
@@ -310,13 +356,17 @@ public class Streams {
          * determining the result.  If the stream is empty then {@code true} is
          * returned and the predicate is not evaluated.
          *
-         * <p>This is a short-circuiting terminal operation.
+         * <p>
+         * This is a short-circuiting terminal operation.
+         * </p>
          *
-         * \@apiNote
+         * <p>
+         * Note
          * This method evaluates the <em>universal quantification</em> of the
          * predicate over the elements of the stream (for all x P(x)).  If the
          * stream is empty, the quantification is said to be <em>vacuously
          * satisfied</em> and is always {@code true} (regardless of P(x)).
+         * </p>
          *
          * @param predicate A non-interfering, stateless predicate to apply to
          * elements of this stream
@@ -334,9 +384,11 @@ public class Streams {
          * necessary for determining the result.  If the stream is empty then
          * {@code false} is returned and the predicate is not evaluated.
          *
-         * <p>This is a short-circuiting terminal operation.
+         * <p>
+         * This is a short-circuiting terminal operation.
+         * </p>
          *
-         * \@apiNote
+         * Note
          * This method evaluates the <em>existential quantification</em> of the
          * predicate over the elements of the stream (for some x P(x)).
          *
@@ -435,24 +487,34 @@ public class Streams {
         return stream(stream.stream());
     }
 
+    /**
+     * A Collector type for arrays.
+     *
+     * @param <O> The array type.
+     * @deprecated Use {@link org.apache.commons.lang3.stream.Streams.ArrayCollector}.
+     */
+    @Deprecated
     public static class ArrayCollector<O> implements Collector<O, List<O>, O[]> {
         private static final Set<Characteristics> characteristics = Collections.emptySet();
         private final Class<O> elementType;
 
+        /**
+         * Constructs a new instance for the given element type.
+         *
+         * @param elementType The element type.
+         */
         public ArrayCollector(final Class<O> elementType) {
             this.elementType = elementType;
         }
 
         @Override
         public Supplier<List<O>> supplier() {
-            return () -> new ArrayList<>();
+            return ArrayList::new;
         }
 
         @Override
         public BiConsumer<List<O>, O> accumulator() {
-            return (list, o) -> {
-                list.add(o);
-            };
+            return List::add;
         }
 
         @Override
@@ -465,11 +527,7 @@ public class Streams {
 
         @Override
         public Function<List<O>, O[]> finisher() {
-            return (list) -> {
-                @SuppressWarnings("unchecked")
-                final O[] array = (O[]) Array.newInstance(elementType, list.size());
-                return list.toArray(array);
-            };
+            return list -> list.toArray(ArrayUtils.newInstance(elementType, list.size()));
         }
 
         @Override

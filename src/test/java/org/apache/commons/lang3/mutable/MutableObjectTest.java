@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
  */
 public class MutableObjectTest {
 
-    // ----------------------------------------------------------------
     @Test
     public void testConstructors() {
         assertNull(new MutableObject<String>().getValue());
@@ -40,18 +39,6 @@ public class MutableObjectTest {
         assertSame(i, new MutableObject<>(i).getValue());
         assertSame("HI", new MutableObject<>("HI").getValue());
         assertSame(null, new MutableObject<>(null).getValue());
-    }
-
-    @Test
-    public void testGetSet() {
-        final MutableObject<String> mutNum = new MutableObject<>();
-        assertNull(new MutableObject<>().getValue());
-
-        mutNum.setValue("HELLO");
-        assertSame("HELLO", mutNum.getValue());
-
-        mutNum.setValue(null);
-        assertSame(null, mutNum.getValue());
     }
 
     @Test
@@ -74,6 +61,18 @@ public class MutableObjectTest {
         assertNotEquals(null, mutNumA);
         assertNotEquals(mutNumA, new Object());
         assertNotEquals("0", mutNumA);
+    }
+
+    @Test
+    public void testGetSet() {
+        final MutableObject<String> mutNum = new MutableObject<>();
+        assertNull(new MutableObject<>().getValue());
+
+        mutNum.setValue("HELLO");
+        assertSame("HELLO", mutNum.getValue());
+
+        mutNum.setValue(null);
+        assertSame(null, mutNum.getValue());
     }
 
     @Test
